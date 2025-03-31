@@ -1,0 +1,4 @@
+../Core/Src/lcd.c:33:13:lcd_cmd	1
+../Core/Src/lcd.c:40:13:lcd_data	1
+../Core/Src/lcd.c:46:13:lcd_send	2
+../Core/Src/lcd.c:53:6:lcd_init	2
