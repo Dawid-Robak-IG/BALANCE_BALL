@@ -68,8 +68,8 @@ void MX_FREERTOS_Init(void);
 void click_led(){
 	static uint8_t clicked;
 	static uint32_t time;
-	if(HAL_GPIO_ReadPin(B2_GPIO_Port, B2_Pin)==GPIO_PIN_RESET){
-		if((HAL_GetTick()-time)>1000  ){
+	if(HAL_GPIO_ReadPin(B2_GPIO_Port, B2_Pin)==GPIO_PIN_SET){
+		if((HAL_GetTick()-time)>50){
 			time=HAL_GetTick();
 			if(clicked==0){
 				clicked=1;
@@ -126,10 +126,10 @@ int main(void)
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
-  //MX_FREERTOS_Init();
+//  MX_FREERTOS_Init();
 
   /* Start scheduler */
-  //osKernelStart();
+//  osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
 
@@ -145,13 +145,9 @@ int main(void)
 //  lcd_put_rectangle(0, 80, 160, 16, CYAN);
 //  lcd_put_rectangle(0, 96, 160, 16, WHITE);
 //  lcd_put_rectangle(0, 112, 160, 16, BLACK);
-  HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_RESET);
   while (1)
   {
-	  HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_13);
-	  HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_14);
-	  HAL_Delay(500);
+	  click_led();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
