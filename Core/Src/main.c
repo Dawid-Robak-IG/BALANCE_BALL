@@ -136,15 +136,15 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-//  lcd_init();
-//  lcd_put_rectangle(0, 0, 160, 16, RED);
-//  lcd_put_rectangle(0, 16, 160, 16, GREEN);
-//  lcd_put_rectangle(0, 32, 160, 16, BLUE);
-//  lcd_put_rectangle(0, 48, 160, 16, YELLOW);
-//  lcd_put_rectangle(0, 64, 160, 16, MAGENTA);
-//  lcd_put_rectangle(0, 80, 160, 16, CYAN);
-//  lcd_put_rectangle(0, 96, 160, 16, WHITE);
-//  lcd_put_rectangle(0, 112, 160, 16, BLACK);
+  lcd_init();
+  lcd_put_rectangle(0, 0, 160, 16, RED);
+  lcd_put_rectangle(0, 16, 160, 16, GREEN);
+  lcd_put_rectangle(0, 32, 160, 16, BLUE);
+  lcd_put_rectangle(0, 48, 160, 16, YELLOW);
+  lcd_put_rectangle(0, 64, 160, 16, MAGENTA);
+  lcd_put_rectangle(0, 80, 160, 16, CYAN);
+  lcd_put_rectangle(0, 96, 160, 16, WHITE);
+  lcd_put_rectangle(0, 112, 160, 16, BLACK);
   while (1)
   {
 	  click_led();

@@ -19,6 +19,9 @@
 #define COL_ADR_SET 0x2A // set columns which will be use
 #define PAGE_ADR_SET 0x2B//sets a row which will be use
 #define MEM_WRITE 0x2C // put data to operated area
+#define DISP_FUN_CON 0xB6
+#define POS_GAMMA_COR 0xE0
+#define NEG_GAMMA_COR 0xE1
 
 static const uint16_t init_table[] = {
 		CMD(FRAME_RATE_CONTROL),0x00, 0x1B, // by 70Hz
@@ -29,7 +32,9 @@ static const uint16_t init_table[] = {
 		CMD(POWER_CON2), 0x11,
 		CMD(VCOM_CON1), 0x3E, 0x28, // VCOMH=3.450, VCOML = -1.5V
 		CMD(COLMOD), 0x05, // chosen 16-bit, R5, G6, B5
-		CMD(MAC), 0x00,
+		CMD(MAC), 0xC8, //in documentation this means BGR but it turned out to be RGB, also it set (0,0) to left down corner
+		CMD(POS_GAMMA_COR), 0x1F, 0x1A, 0x18, 0x0A, 0x0F, 0x06, 0x45, 0x87, 0x32, 0x0A, 0x07, 0x02, 0x07, 0x05, 0x00,
+		CMD(NEG_GAMMA_COR), 0x00, 0x25, 0x27, 0x05, 0x10, 0x09, 0x3A, 0x56, 0x4C, 0x05, 0x0D, 0x0C, 0x2E, 0x2F, 0x0F,
 };
 static void lcd_cmd(uint8_t cmd){
 	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_RESET); //teraz komendy
@@ -78,6 +83,7 @@ static void lcd_set_window(int x, int y, int width, int height){
 }
 void lcd_put_rectangle(int x,int y,int width,int height,uint16_t color){
 	lcd_set_window(x, y, width, height);
+	lcd_cmd(MEM_WRITE);
 	for(int i=0;i<width*height;i++){
 		lcd_data16(color); //start pos accoridng to MADCTL setting ( i named it MAC)
 	}
