@@ -65,7 +65,23 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void click_led(){
+	static uint8_t clicked;
+	static uint32_t time;
+	if(HAL_GPIO_ReadPin(B2_GPIO_Port, B2_Pin)==GPIO_PIN_RESET){
+		if((HAL_GetTick()-time)>1000  ){
+			time=HAL_GetTick();
+			if(clicked==0){
+				clicked=1;
+				HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+				time=HAL_GetTick();
+			}
+		}
+	}
+	else{
+		clicked=0;
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -120,9 +136,22 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  lcd_init();
+//  lcd_init();
+//  lcd_put_rectangle(0, 0, 160, 16, RED);
+//  lcd_put_rectangle(0, 16, 160, 16, GREEN);
+//  lcd_put_rectangle(0, 32, 160, 16, BLUE);
+//  lcd_put_rectangle(0, 48, 160, 16, YELLOW);
+//  lcd_put_rectangle(0, 64, 160, 16, MAGENTA);
+//  lcd_put_rectangle(0, 80, 160, 16, CYAN);
+//  lcd_put_rectangle(0, 96, 160, 16, WHITE);
+//  lcd_put_rectangle(0, 112, 160, 16, BLACK);
+  HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_RESET);
   while (1)
   {
+	  HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_13);
+	  HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_14);
+	  HAL_Delay(500);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
