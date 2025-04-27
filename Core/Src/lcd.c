@@ -23,6 +23,12 @@
 #define POS_GAMMA_COR 0xE0
 #define NEG_GAMMA_COR 0xE1
 
+volatile static uint16_t screen_buffer[LCD_WIDTH * LCD_HEIGHT];
+static uint16_t current_chunk = 0;
+static uint16_t how_many_chunks = 4;
+static uint16_t chunk_size;
+static uint16_t y_per_chunk;
+
 static const uint16_t init_table[] = {
 		CMD(FRAME_RATE_CONTROL),0x00, 0x1B, // by 70Hz
 		CMD(FRAME_RATE_CONTROL2),0x00, 0x1B,
@@ -32,7 +38,7 @@ static const uint16_t init_table[] = {
 		CMD(POWER_CON2), 0x11,
 		CMD(VCOM_CON1), 0x3E, 0x28, // VCOMH=3.450, VCOML = -1.5V
 		CMD(COLMOD), 0x05, // chosen 16-bit, R5, G6, B5
-		CMD(MAC), 0xC8, //in documentation this means BGR but it turned out to be RGB, also it set (0,0) to left down corner
+		CMD(MAC), 0x48, //in documentation this means BGR but it turned out to be RGB, also it set (0,0) to up left corner
 		CMD(POS_GAMMA_COR), 0x1F, 0x1A, 0x18, 0x0A, 0x0F, 0x06, 0x45, 0x87, 0x32, 0x0A, 0x07, 0x02, 0x07, 0x05, 0x00,
 		CMD(NEG_GAMMA_COR), 0x00, 0x25, 0x27, 0x05, 0x10, 0x09, 0x3A, 0x56, 0x4C, 0x05, 0x0D, 0x0C, 0x2E, 0x2F, 0x0F,
 };
@@ -60,10 +66,13 @@ static void lcd_send(uint16_t value){
 	}
 }
 void lcd_init(void){
+  chunk_size = (LCD_HEIGHT * LCD_WIDTH) / how_many_chunks;
+  y_per_chunk = LCD_HEIGHT / how_many_chunks;
+
   int i;
   HAL_GPIO_WritePin(RDX_GPIO_Port, RDX_Pin, GPIO_PIN_RESET);
   HAL_Delay(100); // w nocie 10 mikro sec
-  HAL_GPIO_WritePin(RDX_GPIO_Port, RDX_GPIO_Port, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(RDX_GPIO_Port, RDX_Pin, GPIO_PIN_SET);
   HAL_Delay(100);
   for (i = 0; i < sizeof(init_table) / sizeof(uint16_t); i++) {
     lcd_send(init_table[i]);
@@ -76,10 +85,10 @@ void lcd_init(void){
 static void lcd_set_window(int x, int y, int width, int height){
 	lcd_cmd(COL_ADR_SET);
 	lcd_data16(x);
-	lcd_data16(x + width - 1);
+	lcd_data16(x+width-1);
 	lcd_cmd(PAGE_ADR_SET);
 	lcd_data16(y);
-	lcd_data16(y + height- 1);
+	lcd_data16(y+height-1);
 }
 void lcd_put_rectangle(int x,int y,int width,int height,uint16_t color){
 	lcd_set_window(x, y, width, height);
@@ -88,5 +97,40 @@ void lcd_put_rectangle(int x,int y,int width,int height,uint16_t color){
 		lcd_data16(color); //start pos accoridng to MADCTL setting ( i named it MAC)
 	}
 }
+void lcd_put_pixel(int x, int y, uint16_t color){
+	screen_buffer[ (LCD_WIDTH*y) + x] = __REV16(color); //to make send most significant bit first
+}
+void lcd_update(void){
+	current_chunk = 0;
+	lcd_set_window(0, current_chunk*y_per_chunk, LCD_WIDTH, LCD_HEIGHT/how_many_chunks);
+	lcd_cmd(MEM_WRITE);
+	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_RESET);
 
+	HAL_SPI_Transmit_DMA(&hspi5, (uint8_t*)(screen_buffer + (current_chunk * chunk_size)), 2*chunk_size);
+}
+void lcd_transfer_done(void){
+	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_SET);
+}
+bool lcd_is_busy(void){
+	if (HAL_SPI_GetState(&hspi5) == HAL_SPI_STATE_BUSY) return true;
+	else return false;
+}
+void send_next_chunk(void){
+	lcd_set_window(0, current_chunk*y_per_chunk, LCD_WIDTH, LCD_HEIGHT/how_many_chunks);
+	lcd_cmd(MEM_WRITE);
+	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_RESET);
+
+	HAL_SPI_Transmit_DMA(&hspi5, (uint8_t*)(screen_buffer + (current_chunk * chunk_size)), 2*chunk_size);
+}
+void go_for_next_chunk(void){
+	current_chunk++;
+	if (current_chunk < how_many_chunks) {
+		send_next_chunk();
+	}
+	else {
+		lcd_transfer_done();
+	}
+}
 

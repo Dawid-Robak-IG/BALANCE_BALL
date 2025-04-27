@@ -182,7 +182,7 @@ void HAL_LTDC_MspInit(LTDC_HandleTypeDef* ltdcHandle)
     GPIO_InitStruct.Alternate = GPIO_AF14_LTDC;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = G7_Pin|B2_Pin;
+    GPIO_InitStruct.Pin = G7_Pin|B2D6_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -253,7 +253,7 @@ void HAL_LTDC_MspDeInit(LTDC_HandleTypeDef* ltdcHandle)
 
     HAL_GPIO_DeInit(GPIOC, HSYNC_Pin|G6_Pin|R2_Pin);
 
-    HAL_GPIO_DeInit(GPIOD, G7_Pin|B2_Pin);
+    HAL_GPIO_DeInit(GPIOD, G7_Pin|B2D6_Pin);
 
     /* LTDC interrupt Deinit */
     HAL_NVIC_DisableIRQ(LTDC_IRQn);

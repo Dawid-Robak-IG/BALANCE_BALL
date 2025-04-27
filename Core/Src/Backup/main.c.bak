@@ -65,26 +65,24 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+void click_led(){
 	static uint8_t clicked;
 	static uint32_t time;
-	HAL_GPIO_TogglePin(LD4_GPIO_Port, LD4_Pin);
-	if(GPIO_Pin==B2_Pin){
-		if(HAL_GPIO_ReadPin(B2_GPIO_Port, B2_Pin)==GPIO_PIN_RESET){
-			if((HAL_GetTick()-time)>1000){
+	if(HAL_GPIO_ReadPin(B2_GPIO_Port, B2_Pin)==GPIO_PIN_SET){
+		if((HAL_GetTick()-time)>50){
+			time=HAL_GetTick();
+			if(clicked==0){
+				clicked=1;
+				HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
 				time=HAL_GetTick();
-				if(clicked==0){
-					clicked=1;
-					HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
-					time=HAL_GetTick();
-				}
 			}
 		}
-		else{
-			clicked=0;
-		}
+	}
+	else{
+		clicked=0;
 	}
 }
+uint16_t test_image[64*64];
 /* USER CODE END 0 */
 
 /**
@@ -129,27 +127,26 @@ int main(void)
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
-  //MX_FREERTOS_Init();
+//  MX_FREERTOS_Init();
 
   /* Start scheduler */
-  //osKernelStart();
+//  osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-//  lcd_init();
-//  lcd_put_rectangle(0, 0, 160, 16, RED);
-//  lcd_put_rectangle(0, 16, 160, 16, GREEN);
-//  lcd_put_rectangle(0, 32, 160, 16, BLUE);
-//  lcd_put_rectangle(0, 48, 160, 16, YELLOW);
-//  lcd_put_rectangle(0, 64, 160, 16, MAGENTA);
-//  lcd_put_rectangle(0, 80, 160, 16, CYAN);
-//  lcd_put_rectangle(0, 96, 160, 16, WHITE);
-//  lcd_put_rectangle(0, 112, 160, 16, BLACK);
+  lcd_init();
+  for (int y = 10; y < LCD_HEIGHT; y++) {
+    for (int x = 100; x < LCD_WIDTH; x++) {
+      lcd_put_pixel(x, y, BLUE);
+    }
+  }
+  lcd_update();
   while (1)
   {
+	  click_led();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

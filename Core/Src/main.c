@@ -20,6 +20,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "crc.h"
+#include "dma.h"
 #include "dma2d.h"
 #include "i2c.h"
 #include "ltdc.h"
@@ -82,6 +83,11 @@ void click_led(){
 		clicked=0;
 	}
 }
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi){
+	if (hspi == &hspi5){
+		go_for_next_chunk();
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -113,6 +119,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_CRC_Init();
   MX_DMA2D_Init();
   MX_FMC_Init();
@@ -126,10 +133,10 @@ int main(void)
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
-//  MX_FREERTOS_Init();
+  //MX_FREERTOS_Init();
 
   /* Start scheduler */
-//  osKernelStart();
+  //osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
 
@@ -137,14 +144,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   lcd_init();
-  lcd_put_rectangle(0, 0, 160, 16, RED);
-  lcd_put_rectangle(0, 16, 160, 16, GREEN);
-  lcd_put_rectangle(0, 32, 160, 16, BLUE);
-  lcd_put_rectangle(0, 48, 160, 16, YELLOW);
-  lcd_put_rectangle(0, 64, 160, 16, MAGENTA);
-  lcd_put_rectangle(0, 80, 160, 16, CYAN);
-  lcd_put_rectangle(0, 96, 160, 16, WHITE);
-  lcd_put_rectangle(0, 112, 160, 16, BLACK);
+  for (int y = 0; y < LCD_HEIGHT; y++) {
+    for (int x = 0; x < LCD_WIDTH; x++) {
+      lcd_put_pixel(x, y, BLUE);
+    }
+  }
+  lcd_update();
   while (1)
   {
 	  click_led();
