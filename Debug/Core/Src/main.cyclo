@@ -1,6 +1,7 @@
-../Core/Src/main.c:69:6:click_led	4
-../Core/Src/main.c:86:6:HAL_SPI_TxCpltCallback	2
-../Core/Src/main.c:97:5:main	3
-../Core/Src/main.c:167:6:SystemClock_Config	3
-../Core/Src/main.c:220:6:HAL_TIM_PeriodElapsedCallback	2
-../Core/Src/main.c:238:6:Error_Handler	1
+../Core/Src/main.c:68:6:click_led	4
+../Core/Src/main.c:85:6:HAL_SPI_TxCpltCallback	2
+../Core/Src/main.c:90:6:set_new_figs	1
+../Core/Src/main.c:101:5:main	3
+../Core/Src/main.c:172:6:SystemClock_Config	3
+../Core/Src/main.c:225:6:HAL_TIM_PeriodElapsedCallback	2
+../Core/Src/main.c:243:6:Error_Handler	1

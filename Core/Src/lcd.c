@@ -23,6 +23,9 @@
 #define POS_GAMMA_COR 0xE0
 #define NEG_GAMMA_COR 0xE1
 
+Rectangle rects[RECTS_AMOUNT];
+Circle player;
+
 volatile static uint16_t screen_buffer[LCD_WIDTH * LCD_HEIGHT];
 static uint16_t current_chunk = 0;
 static uint16_t how_many_chunks = 4;
@@ -33,7 +36,7 @@ static const uint16_t init_table[] = {
 		CMD(FRAME_RATE_CONTROL),0x00, 0x1B, // by 70Hz
 		CMD(FRAME_RATE_CONTROL2),0x00, 0x1B,
 		CMD(FRAME_RATE_CONTROL3),0x00, 0x1B,
-		CMD(DISP_INV_CON), 0x07, //moke inv coltrol in all modes,
+		CMD(DISP_INV_CON), 0x07, //make inv control in all modes,
 		CMD(POWER_CON1), 0x21, //GVDD=4.5V
 		CMD(POWER_CON2), 0x11,
 		CMD(VCOM_CON1), 0x3E, 0x28, // VCOMH=3.450, VCOML = -1.5V
@@ -90,17 +93,52 @@ static void lcd_set_window(int x, int y, int width, int height){
 	lcd_data16(y);
 	lcd_data16(y+height-1);
 }
-void lcd_put_rectangle(int x,int y,int width,int height,uint16_t color){
-	lcd_set_window(x, y, width, height);
-	lcd_cmd(MEM_WRITE);
-	for(int i=0;i<width*height;i++){
-		lcd_data16(color); //start pos accoridng to MADCTL setting ( i named it MAC)
-	}
+void lcd_update_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t color){
+	rects[idx].x = x;
+	rects[idx].y = y;
+	rects[idx].width = width;
+	rects[idx].height = height;
+	rects[idx].color = color;
 }
+void lcd_update_circle(int x,int y,int radius,uint16_t color){
+	player.x = x;
+	player.y = y;
+	player.radius = radius;
+	player.color = color;
+}
+
 void lcd_put_pixel(int x, int y, uint16_t color){
 	screen_buffer[ (LCD_WIDTH*y) + x] = __REV16(color); //to make send most significant bit first
 }
+static void lcd_put_rect_to_buffer(Rectangle rect){
+	for(int y=rect.y;y<rect.y+rect.height;y++){
+		for(int x=rect.x;x<rect.x+rect.width;x++){
+			if(x>=0 && x<LCD_WIDTH && y>=0 && y<LCD_HEIGHT){
+				lcd_put_pixel(x, y, rect.color);
+			}
+		}
+	}
+}
+static void lcd_put_circ_to_buffer(Circle circle){
+	for(int y=circle.y-circle.radius;y<circle.y+circle.radius;y++){
+		for(int x=circle.x-circle.radius;x<circle.x+circle.radius;x++){
+			if(x>=0 && x<LCD_WIDTH && y>=0 && y<LCD_HEIGHT){
+				if ((pow(x - circle.x, 2) + pow(y - circle.y, 2)) <= pow(circle.radius, 2)){
+					lcd_put_pixel(x, y, circle.color);
+				}
+			}
+		}
+	}
+}
+static void put_figures_to_buffer(void){
+	for(int i=0;i<RECTS_AMOUNT;i++){
+		lcd_put_rect_to_buffer(rects[i]);
+	}
+	lcd_put_circ_to_buffer(player);
+}
 void lcd_update(void){
+	put_figures_to_buffer();
+
 	current_chunk = 0;
 	lcd_set_window(0, current_chunk*y_per_chunk, LCD_WIDTH, LCD_HEIGHT/how_many_chunks);
 	lcd_cmd(MEM_WRITE);
@@ -116,7 +154,7 @@ bool lcd_is_busy(void){
 	if (HAL_SPI_GetState(&hspi5) == HAL_SPI_STATE_BUSY) return true;
 	else return false;
 }
-void send_next_chunk(void){
+static void send_next_chunk(void){
 	lcd_set_window(0, current_chunk*y_per_chunk, LCD_WIDTH, LCD_HEIGHT/how_many_chunks);
 	lcd_cmd(MEM_WRITE);
 	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_SET);

@@ -43,7 +43,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -88,6 +87,11 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi){
 		go_for_next_chunk();
 	}
 }
+void set_new_figs(void){
+	lcd_update_rectangle(0, 0, 0, 100, 100, RED);
+	lcd_update_circle(100, 100, 20, GREEN);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -149,6 +153,7 @@ int main(void)
       lcd_put_pixel(x, y, BLUE);
     }
   }
+  set_new_figs();
   lcd_update();
   while (1)
   {
