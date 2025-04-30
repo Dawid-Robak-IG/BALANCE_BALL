@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <string.h>
-
+#include <stdbool.h>
 
 // Rejestry żyroskopu
 #define CTRL_REG1 0x20
@@ -31,12 +31,14 @@ typedef struct {
 
 
 void gyro_init(void);
-void gyro_ReadWhoAmI(void);
-uint8_t gyro_is_data_ready(void);
-void gyro_get_data(int16_t* x, int16_t* y, int16_t* z);
-void gyro_get_filtered_data(int16_t* x, int16_t* y, int16_t* z);
-void gyro_calibration(int16_t* offset_x, int16_t* offset_y, int16_t* offset_z);
 void gyro_set_sensitivity();
+void gyro_ReadWhoAmI(void);
+bool gyro_is_data_ready(void);
+void gyro_get_data(Gyro_Int_Data *gyro_data);
+void gyro_get_filtered_data(Gyro_Int_Data *gyro_data);
+void gyro_calculate_offset(Gyro_Int_Data *offset);
+void gyro_compensate_and_scale(Gyro_Int_Data *gyro_data,Gyro_Int_Data *offset, Gyro_Float_Data *gyro_calibrated_dat);
+
 
 //void gyro_write(uint8_t reg, uint8_t* data, uint16_t size);
 //void gyro_read(uint8_t reg, uint8_t* data, uint16_t size);
