@@ -22,6 +22,23 @@
 
 /* USER CODE BEGIN 0 */
 
+
+static volatile bool spi5_busy = false;  //flaga informująca czy SPI5 jest zajęte
+
+bool spi5_acquire(void) {  //zajmij SPI, gdy jest wolne
+
+	if (spi5_busy) return false;
+
+    spi5_busy = true;
+    return true;
+}
+
+void spi5_release(void) { //zwolnij SPI
+    spi5_busy = false;
+}
+
+
+
 /* USER CODE END 0 */
 
 SPI_HandleTypeDef hspi5;

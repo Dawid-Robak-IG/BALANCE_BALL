@@ -23,13 +23,20 @@
 #define POS_GAMMA_COR 0xE0
 #define NEG_GAMMA_COR 0xE1
 
-static uint16_t screen_buffer[LCD_WIDTH * LCD_HEIGHT];
+Rectangle rects[RECTS_AMOUNT];
+Circle player;
+
+volatile static uint16_t screen_buffer[LCD_WIDTH * LCD_HEIGHT];
+static uint16_t current_chunk = 0;
+static uint16_t how_many_chunks = 4;
+static uint16_t chunk_size;
+static uint16_t y_per_chunk;
 
 static const uint16_t init_table[] = {
 		CMD(FRAME_RATE_CONTROL),0x00, 0x1B, // by 70Hz
 		CMD(FRAME_RATE_CONTROL2),0x00, 0x1B,
 		CMD(FRAME_RATE_CONTROL3),0x00, 0x1B,
-		CMD(DISP_INV_CON), 0x07, //moke inv coltrol in all modes,
+		CMD(DISP_INV_CON), 0x07, //make inv control in all modes,
 		CMD(POWER_CON1), 0x21, //GVDD=4.5V
 		CMD(POWER_CON2), 0x11,
 		CMD(VCOM_CON1), 0x3E, 0x28, // VCOMH=3.450, VCOML = -1.5V
@@ -39,10 +46,16 @@ static const uint16_t init_table[] = {
 		CMD(NEG_GAMMA_COR), 0x00, 0x25, 0x27, 0x05, 0x10, 0x09, 0x3A, 0x56, 0x4C, 0x05, 0x0D, 0x0C, 0x2E, 0x2F, 0x0F,
 };
 static void lcd_cmd(uint8_t cmd){
+
+	 if (!spi5_acquire()) return;  // SPI jest zajęte, zwróć
+
 	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_RESET); //teraz komendy
 	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_RESET);
 	HAL_SPI_Transmit(&hspi5, &cmd, 1, HAL_MAX_DELAY);
 	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_SET);
+
+	spi5_release();
+
 }
 static void lcd_data(uint8_t data){
 	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_SET); //teraz dane
@@ -62,6 +75,9 @@ static void lcd_send(uint16_t value){
 	}
 }
 void lcd_init(void){
+  chunk_size = (LCD_HEIGHT * LCD_WIDTH) / how_many_chunks;
+  y_per_chunk = LCD_HEIGHT / how_many_chunks;
+
   int i;
   HAL_GPIO_WritePin(RDX_GPIO_Port, RDX_Pin, GPIO_PIN_RESET);
   HAL_Delay(100); // w nocie 10 mikro sec
@@ -75,6 +91,7 @@ void lcd_init(void){
   HAL_Delay(120);
   lcd_cmd(DISPLAY_ON);
 }
+
 static void lcd_set_window(int x, int y, int width, int height){
 	lcd_cmd(COL_ADR_SET);
 	lcd_data16(x);
@@ -83,24 +100,86 @@ static void lcd_set_window(int x, int y, int width, int height){
 	lcd_data16(y);
 	lcd_data16(y+height-1);
 }
-void lcd_put_rectangle(int x,int y,int width,int height,uint16_t color){
-	lcd_set_window(x, y, width, height);
-	lcd_cmd(MEM_WRITE);
-	for(int i=0;i<width*height;i++){
-		lcd_data16(color); //start pos accoridng to MADCTL setting ( i named it MAC)
-	}
+void lcd_update_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t color){
+	rects[idx].x = x;
+	rects[idx].y = y;
+	rects[idx].width = width;
+	rects[idx].height = height;
+	rects[idx].color = color;
 }
+void lcd_update_circle(int x,int y,int radius,uint16_t color){
+	player.x = x;
+	player.y = y;
+	player.radius = radius;
+	player.color = color;
+}
+
 void lcd_put_pixel(int x, int y, uint16_t color){
 	screen_buffer[ (LCD_WIDTH*y) + x] = __REV16(color); //to make send most significant bit first
 }
+static void lcd_put_rect_to_buffer(Rectangle rect){
+	for(int y=rect.y;y<rect.y+rect.height;y++){
+		for(int x=rect.x;x<rect.x+rect.width;x++){
+			if(x>=0 && x<LCD_WIDTH && y>=0 && y<LCD_HEIGHT){
+				lcd_put_pixel(x, y, rect.color);
+			}
+		}
+	}
+}
+static void lcd_put_circ_to_buffer(Circle circle){
+	for(int y=circle.y-circle.radius;y<circle.y+circle.radius;y++){
+		for(int x=circle.x-circle.radius;x<circle.x+circle.radius;x++){
+			if(x>=0 && x<LCD_WIDTH && y>=0 && y<LCD_HEIGHT){
+				if ((pow(x - circle.x, 2) + pow(y - circle.y, 2)) <= pow(circle.radius, 2)){
+					lcd_put_pixel(x, y, circle.color);
+				}
+			}
+		}
+	}
+}
+static void put_figures_to_buffer(void){
+	for(int i=0;i<RECTS_AMOUNT;i++){
+		lcd_put_rect_to_buffer(rects[i]);
+	}
+	lcd_put_circ_to_buffer(player);
+}
 void lcd_update(void){
-	lcd_set_window(0, 0, LCD_WIDTH, LCD_HEIGHT);
+	put_figures_to_buffer();
+
+	current_chunk = 0;
+	lcd_set_window(0, current_chunk*y_per_chunk, LCD_WIDTH, LCD_HEIGHT/how_many_chunks);
 	lcd_cmd(MEM_WRITE);
 	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_RESET);
-	uint32_t buffer_size = LCD_WIDTH*LCD_HEIGHT*2;
-	HAL_SPI_Transmit(&hspi5, (uint8_t*)screen_buffer, buffer_size, HAL_MAX_DELAY);
-	HAL_Delay(1000);
+
+	if (!spi5_acquire()) return;
+
+	HAL_SPI_Transmit_DMA(&hspi5, (uint8_t*)(screen_buffer + (current_chunk * chunk_size)), 2*chunk_size);
+
+	spi5_release();
+}
+void lcd_transfer_done(void){
 	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_SET);
+}
+bool lcd_is_busy(void){
+	if (HAL_SPI_GetState(&hspi5) == HAL_SPI_STATE_BUSY) return true;
+	else return false;
+}
+static void send_next_chunk(void){
+	lcd_set_window(0, current_chunk*y_per_chunk, LCD_WIDTH, LCD_HEIGHT/how_many_chunks);
+	lcd_cmd(MEM_WRITE);
+	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_RESET);
+
+	HAL_SPI_Transmit_DMA(&hspi5, (uint8_t*)(screen_buffer + (current_chunk * chunk_size)), 2*chunk_size);
+}
+void go_for_next_chunk(void){
+	current_chunk++;
+	if (current_chunk < how_many_chunks) {
+		send_next_chunk();
+	}
+	else {
+		lcd_transfer_done();
+	}
 }
 

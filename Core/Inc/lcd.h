@@ -20,6 +20,8 @@
 
 #define RECTS_AMOUNT 10
 
+extern volatile bool lcd_ready;
+
 //==========================================
 // LCD INTERFACE
 //==========================================

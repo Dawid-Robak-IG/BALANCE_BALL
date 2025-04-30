@@ -1,0 +1,8 @@
+../Core/Src/gyro.c:23:9:_write	1
+../Core/Src/gyro.c:28:6:gyro_set_sensitivity	2
+../Core/Src/gyro.c:40:6:gyro_init	2
+../Core/Src/gyro.c:57:6:gyro_get_filtered_data	2
+../Core/Src/gyro.c:90:6:gyro_ReadWhoAmI	3
+../Core/Src/gyro.c:110:6:gyro_get_data	3
+../Core/Src/gyro.c:134:9:gyro_is_data_ready	2
+../Core/Src/gyro.c:150:6:gyro_calibration	3

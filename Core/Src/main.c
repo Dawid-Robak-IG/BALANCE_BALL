@@ -34,6 +34,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "lcd.h"
+#include "gyro.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,6 +56,8 @@
 
 /* USER CODE BEGIN PV */
 
+  int16_t gyro_x, gyro_y, gyro_z;
+  int16_t offset_x=0,offset_y=0,offset_z=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -82,15 +86,23 @@ void click_led(){
 		clicked=0;
 	}
 }
+
+
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi){
 	if (hspi == &hspi5){
-		go_for_next_chunk();
+	 go_for_next_chunk();
+		 if(lcd_ready){
+			 printf("LCD ready\r\n");
+			 gyro_get_filtered_data(&gyro_x, &gyro_y, &gyro_z);
+		 }
 	}
 }
+
 void set_new_figs(void){
 	lcd_update_rectangle(0, 0, 0, 100, 100, RED);
 	lcd_update_circle(100, 100, 20, GREEN);
 }
+
 
 /* USER CODE END 0 */
 
@@ -147,20 +159,52 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  lcd_init();
+
+ lcd_init();
   for (int y = 0; y < LCD_HEIGHT; y++) {
     for (int x = 0; x < LCD_WIDTH; x++) {
       lcd_put_pixel(x, y, BLUE);
     }
   }
   set_new_figs();
-  lcd_update();
+ lcd_update();
+//
+
+ HAL_Delay(500);
+ gyro_init();
+ //gyro_ReadWhoAmI();
+ gyro_calibration(&offset_x, &offset_y, &offset_z);
+
+
   while (1)
   {
-	  click_led();
+
+	  lcd_update();
+	//  gyro_get_filtered_data(&gyro_x, &gyro_y, &gyro_z);
+
+	         // uwzględenienie kalibracji
+	         gyro_x -= offset_x;
+	         gyro_y -= offset_y;
+	         gyro_z -= offset_z;
+
+	         // Konwersja do dps (dla skali 2000dps)
+	         float dps_x = gyro_x * (2000.0 / 32768.0);
+	         float dps_y = gyro_y * (2000.0 / 32768.0);
+	         float dps_z = gyro_z * (2000.0 / 32768.0);
+
+	         printf("X: %.2f dps, Y: %.2f dps, Z: %.2f dps\r\n", dps_x, dps_y, dps_z);
+
+	         HAL_Delay(500);  // Odczyt z częstotliwością ~20Hz
+
+
+	 // click_led();
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+
+
   }
   /* USER CODE END 3 */
 }

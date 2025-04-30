@@ -1,0 +1,122 @@
+#include "gyro.h"
+#include "spi.h"
+#include "usart.h"
+#include <stdio.h>
+
+//Makra do zarządzania CS
+#define I3G4250D_CS_LOW()  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET)
+#define I3G4250D_CS_HIGH() HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET)
+
+
+#define CTRL_REG1 0x20         // Rejestr kontrolny 1 (aktywny tryb)
+#define OUT_X_L 0x28           // Rejestr danych X (niższy bajt)
+#define OUT_X_H 0x29           // Rejestr danych X (wyższy bajt)
+#define OUT_Y_L 0x2A           // Rejestr danych Y (niższy bajt)
+#define OUT_Y_H 0x2B           // Rejestr danych Y (wyższy bajt)
+#define OUT_Z_L 0x2C           // Rejestr danych Z (niższy bajt)
+#define OUT_Z_H 0x2D           // Rejestr danych Z (wyższy bajt)
+
+ssize_t _write(int file, const char *data, size_t len) {
+    HAL_UART_Transmit(&huart1, (uint8_t *)data, len, HAL_MAX_DELAY);  // Wysyłanie danych przez UART
+    return len;  // Zwracamy liczbę wysłanych bajtów
+}
+
+
+void gyro_init(void){
+
+	//  uint8_t data = 0x0F; //(PD=1, Zen=1, Yen=1, Xen=1) włącz:zasilanie, oś Z, oś Y, oś X
+	  uint8_t configData[2];
+	  configData[0]=CTRL_REG1;
+	  configData[1]=0x0F;
+
+	  if (!spi5_acquire()){
+
+		  return;  // Jeśli SPI jest zajęte, zakończ funkcję
+	  }
+
+	  //HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);  // Wybór urządzenia
+	//  HAL_Delay(50);
+	  HAL_SPI_Transmit(&hspi5, configData, 2, HAL_MAX_DELAY);  // Transmisja danych
+	//  HAL_Delay(50);
+	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);  // Zakończenie komunikacji
+
+	  spi5_release();  // Zwolnienie SPI
+}
+
+
+uint8_t I3G4250D_ReadWhoAmI(void)
+{
+    uint8_t tx = 0x0F | 0x80;
+    uint8_t rx = 0;
+
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
+    HAL_SPI_TransmitReceive(&hspi5, tx, rx, 2, HAL_MAX_DELAY);
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+    return rx;
+}
+
+
+void I3G4250D_ReadGyro(int16_t *gx, int16_t *gy, int16_t *gz)
+{
+    uint8_t tx =OUT_X_L | 0x80 | 0x40;
+    uint8_t rx[6];
+
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
+    HAL_SPI_Transmit(&hspi5, &tx, 1, HAL_MAX_DELAY);
+    HAL_SPI_Receive(&hspi5, rx, 6, HAL_MAX_DELAY);
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+
+    *gx = (int16_t)(rx[1] << 8 | rx[0]);
+    *gy = (int16_t)(rx[3] << 8 | rx[2]);
+    *gz = (int16_t)(rx[5] << 8 | rx[4]);
+}
+
+
+void gyro_write(uint8_t reg, uint8_t* data, uint16_t size) {
+    // Zajmujemy się tylko wysyłaniem komend do żyroskopu przez SPI
+    uint8_t txData[256];  // Zmienna do przechowania danych
+
+    // Rejestr, do którego będziemy pisać
+    txData[0] = reg | 0x40;  // Ustawiamy 0x40, żeby mówić, że to zapis
+    memcpy(&txData[1], data, size);
+
+    // Wysyłamy dane przez SPI
+    if (spi5_acquire()) {
+        HAL_SPI_Transmit(&hspi5, txData, size + 1, HAL_MAX_DELAY);
+        spi5_release();
+    }
+
+}
+
+void gyro_read(uint8_t reg, uint8_t* data, uint16_t size) {
+    uint8_t txData[256];
+
+    // Rejestr, z którego będziemy odczytywać
+    txData[0] = reg | 0x80;  // Ustawiamy 0x80, żeby mówić, że to odczyt
+    memset(&txData[1], 0, size);  // Wypełniamy resztę bufora zerami (właśnie będziemy odczytywać)
+
+    // Wysyłamy zapytanie i odczytujemy dane przez SPI
+    if (spi5_acquire()) {
+        HAL_SPI_TransmitReceive(&hspi5, txData, data, size + 1, HAL_MAX_DELAY);
+        spi5_release();
+    }
+
+}
+
+
+void gyro_get_data(int16_t* x, int16_t* y, int16_t* z) {
+    uint8_t data[6];  //każda oś 2 bajty
+
+    gyro_read(0x28, data, 6);
+
+    printf("Raw data: ");
+    for (int i = 0; i < 6; i++) {
+        printf("%02X \r\n", data[i]);
+    }
+
+    // Łączymy dane w 16-bitowe wartości
+    *x = (int16_t)((data[1] << 8) | data[0]);  // Odczyt osi X
+    *y = (int16_t)((data[3] << 8) | data[2]);  // Odczyt osi Y
+    *z = (int16_t)((data[5] << 8) | data[4]);  // Odczyt osi Z
+}

@@ -20,6 +20,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "crc.h"
+#include "dma.h"
 #include "dma2d.h"
 #include "i2c.h"
 #include "ltdc.h"
@@ -33,6 +34,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "lcd.h"
+#include "gyro.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,7 +45,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -82,7 +84,21 @@ void click_led(){
 		clicked=0;
 	}
 }
-uint16_t test_image[64*64];
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi){
+	if (hspi == &hspi5){
+		go_for_next_chunk();
+	}
+}
+void set_new_figs(void){
+	lcd_update_rectangle(0, 0, 0, 100, 100, RED);
+	lcd_update_circle(100, 100, 20, GREEN);
+}
+
+//ssize_t _write(int file, const char *data, size_t len) {
+//    HAL_UART_Transmit(&huart1, (uint8_t *)data, len, HAL_MAX_DELAY);  // Wysyłanie danych przez UART
+//    return len;  // Zwracamy liczbę wysłanych bajtów
+//}
+
 /* USER CODE END 0 */
 
 /**
@@ -114,6 +130,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_CRC_Init();
   MX_DMA2D_Init();
   MX_FMC_Init();
@@ -127,10 +144,10 @@ int main(void)
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
-//  MX_FREERTOS_Init();
+ // MX_FREERTOS_Init();
 
   /* Start scheduler */
-//  osKernelStart();
+  //osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
 
@@ -138,15 +155,36 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   lcd_init();
-  for (int y = 10; y < LCD_HEIGHT; y++) {
-    for (int x = 100; x < LCD_WIDTH; x++) {
+  for (int y = 0; y < LCD_HEIGHT; y++) {
+    for (int x = 0; x < LCD_WIDTH; x++) {
       lcd_put_pixel(x, y, BLUE);
     }
   }
+  set_new_figs();
   lcd_update();
+
+  //int16_t gyro_x, gyro_y, gyro_z;
+printf("gyro ready!\r\n");
+
+ gyro_init();
+
+ uint8_t id = I3G4250D_ReadWhoAmI();
+    if (id != 0xD3)
+    {
+       printf("bddddd: %d\r\n",id);
+       HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_13);
+    }
+
+
+ // gyro_get_data(&gyro_x, &gyro_y, &gyro_z);
+  //printf("X: %d, Y: %d, Z:%d\r\n",gyro_x,gyro_y,gyro_z);
   while (1)
   {
 	  click_led();
+//	  HAL_Delay(1000);
+//
+//	  gyro_get_data(&gyro_x, &gyro_y, &gyro_z);
+//	  printf("X: %d, Y: %d, Z:%d\r\n",gyro_x,gyro_y,gyro_z);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

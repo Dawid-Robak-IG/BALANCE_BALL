@@ -4,6 +4,7 @@
 "./Core/Src/fmc.o"
 "./Core/Src/freertos.o"
 "./Core/Src/gpio.o"
+"./Core/Src/gyro.o"
 "./Core/Src/i2c.o"
 "./Core/Src/lcd.o"
 "./Core/Src/ltdc.o"

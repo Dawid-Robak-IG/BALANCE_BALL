@@ -32,6 +32,9 @@ static uint16_t how_many_chunks = 4;
 static uint16_t chunk_size;
 static uint16_t y_per_chunk;
 
+volatile bool lcd_ready=true;
+
+
 static const uint16_t init_table[] = {
 		CMD(FRAME_RATE_CONTROL),0x00, 0x1B, // by 70Hz
 		CMD(FRAME_RATE_CONTROL2),0x00, 0x1B,
@@ -46,10 +49,16 @@ static const uint16_t init_table[] = {
 		CMD(NEG_GAMMA_COR), 0x00, 0x25, 0x27, 0x05, 0x10, 0x09, 0x3A, 0x56, 0x4C, 0x05, 0x0D, 0x0C, 0x2E, 0x2F, 0x0F,
 };
 static void lcd_cmd(uint8_t cmd){
+
+	 if (!spi5_acquire()) return;  // SPI jest zajęte, zwróć
+
 	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_RESET); //teraz komendy
 	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_RESET);
 	HAL_SPI_Transmit(&hspi5, &cmd, 1, HAL_MAX_DELAY);
 	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_SET);
+
+	spi5_release();
+
 }
 static void lcd_data(uint8_t data){
 	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_SET); //teraz dane
@@ -85,6 +94,7 @@ void lcd_init(void){
   HAL_Delay(120);
   lcd_cmd(DISPLAY_ON);
 }
+
 static void lcd_set_window(int x, int y, int width, int height){
 	lcd_cmd(COL_ADR_SET);
 	lcd_data16(x);
@@ -145,7 +155,11 @@ void lcd_update(void){
 	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_RESET);
 
+	if (!spi5_acquire()) return;
+
 	HAL_SPI_Transmit_DMA(&hspi5, (uint8_t*)(screen_buffer + (current_chunk * chunk_size)), 2*chunk_size);
+
+	spi5_release();
 }
 void lcd_transfer_done(void){
 	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_SET);
@@ -159,8 +173,11 @@ static void send_next_chunk(void){
 	lcd_cmd(MEM_WRITE);
 	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_RESET);
-
+	lcd_ready = false;
+	if (!spi5_acquire()) return;
 	HAL_SPI_Transmit_DMA(&hspi5, (uint8_t*)(screen_buffer + (current_chunk * chunk_size)), 2*chunk_size);
+
+	spi5_release();
 }
 void go_for_next_chunk(void){
 	current_chunk++;
@@ -168,6 +185,7 @@ void go_for_next_chunk(void){
 		send_next_chunk();
 	}
 	else {
+		lcd_ready=true;
 		lcd_transfer_done();
 	}
 }

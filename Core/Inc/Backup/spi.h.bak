@@ -29,19 +29,20 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 extern SPI_HandleTypeDef hspi5;
 
 /* USER CODE BEGIN Private defines */
-
+extern volatile bool spi_busy;  // Flaga informująca, czy SPI jest zajęte
 /* USER CODE END Private defines */
 
 void MX_SPI5_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+bool spi5_acquire(void);  // Funkcja przejmuje SPI
+void spi5_release(void);  // Funkcja zwalnia SPI
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
