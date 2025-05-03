@@ -40,7 +40,8 @@ Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.o: \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_hcd.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h ../Core/Inc/lcd.h \
+ ../Core/Inc/figures.h ../Core/Inc/gyro.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h \
  ../Core/Inc/FreeRTOSConfig.h \
@@ -105,6 +106,9 @@ Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.o: \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_hcd.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h:
+../Core/Inc/lcd.h:
+../Core/Inc/figures.h:
+../Core/Inc/gyro.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
 ../Core/Inc/FreeRTOSConfig.h:

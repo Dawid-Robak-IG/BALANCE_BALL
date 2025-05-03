@@ -33,9 +33,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "lcd.h"
-#include "gyro.h"
-#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -74,6 +71,20 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void ball_move(){
+	int dx = (int)(gyro_scaled_data_s.y);
+	int dy = (int)(gyro_scaled_data_s.x);
+
+	if (abs(dx) < 1) dx=0;
+	if (abs(dy) < 1) dy=0;
+	if(dx==0 && dy==0)return;
+
+	dx *= 5.0f;
+	dy *= 5.0f;
+
+	lcd_delta_circle(dx,dy,0);
+	lcd_update();
+}
 void click_led() {
 	static uint8_t clicked;
 	static uint32_t time;
@@ -105,6 +116,7 @@ void set_new_figs(void) {
 	lcd_update_rectangle(0, 0, 0, 100, 100, RED);
 	lcd_update_circle(100, 100, 20, GREEN);
 }
+
 
 /* USER CODE END 0 */
 
@@ -146,18 +158,6 @@ int main(void) {
 	MX_TIM1_Init();
 	MX_USART1_UART_Init();
 	/* USER CODE BEGIN 2 */
-
-	/* USER CODE END 2 */
-
-	/* Call init function for freertos objects (in cmsis_os2.c) */
-	//MX_FREERTOS_Init();
-	/* Start scheduler */
-	//osKernelStart();
-	/* We should never get here as control is now taken by the scheduler */
-
-	/* Infinite loop */
-	/* USER CODE BEGIN WHILE */
-
 	lcd_init();
 	for (int y = 0; y < LCD_HEIGHT; y++) {
 		for (int x = 0; x < LCD_WIDTH; x++) {
@@ -172,15 +172,21 @@ int main(void) {
 	gyro_init();
 	gyro_calculate_offset(&gyro_offset_s);
 
+	/* USER CODE END 2 */
+
+	/* Call init function for freertos objects (in cmsis_os2.c) */
+//	MX_FREERTOS_Init();
+	/* Start scheduler */
+//	osKernelStart();
+	/* We should never get here as control is now taken by the scheduler */
+
+	/* Infinite loop */
+	/* USER CODE BEGIN WHILE */
+
 	while (1) {
-		lcd_update();
-
 		gyro_compensate_and_scale(&gyro_raw_data_s, &gyro_offset_s, &gyro_scaled_data_s);
-
-		HAL_Delay(500);
-
-		// click_led();
-
+		ball_move();
+		HAL_Delay(300);
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */

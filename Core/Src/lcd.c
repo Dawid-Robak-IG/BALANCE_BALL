@@ -50,7 +50,7 @@ static const uint16_t init_table[] = {
 };
 static void lcd_cmd(uint8_t cmd){
 
-	 if (!spi5_acquire()) return;  // SPI jest zajęte, zwróć
+	if (!spi5_acquire()) return;  // SPI jest zajęte, zwróć
 
 	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_RESET); //teraz komendy
 	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_RESET);
@@ -116,6 +116,17 @@ void lcd_update_circle(int x,int y,int radius,uint16_t color){
 	player.radius = radius;
 	player.color = color;
 }
+void lcd_delta_circle(int dx,int dy,int dradius){
+	player.x += dx;
+	player.y += dy;
+	player.radius += dradius;
+
+	if (player.x < 0) player.x = 0;
+	else if (player.x > LCD_WIDTH) player.x = LCD_WIDTH;
+	if (player.y < 0) player.y = 0;
+	else if (player.y > LCD_HEIGHT) player.y = LCD_HEIGHT;
+	if(player.radius<0)player.radius = 0;
+}
 
 void lcd_put_pixel(int x, int y, uint16_t color){
 	screen_buffer[ (LCD_WIDTH*y) + x] = __REV16(color); //to make send most significant bit first
@@ -133,7 +144,10 @@ static void lcd_put_circ_to_buffer(Circle circle){
 	for(int y=circle.y-circle.radius;y<circle.y+circle.radius;y++){
 		for(int x=circle.x-circle.radius;x<circle.x+circle.radius;x++){
 			if(x>=0 && x<LCD_WIDTH && y>=0 && y<LCD_HEIGHT){
-				if ((pow(x - circle.x, 2) + pow(y - circle.y, 2)) <= pow(circle.radius, 2)){
+//				if ((pow(x - circle.x, 2) + pow(y - circle.y, 2)) <= pow(circle.radius, 2)){
+//					lcd_put_pixel(x, y, circle.color);
+//				}
+				if( ( (x-circle.x)*(x-circle.x)+(y-circle.y)*(y-circle.y)) <= (circle.radius*circle.radius)){
 					lcd_put_pixel(x, y, circle.color);
 				}
 			}
@@ -141,6 +155,10 @@ static void lcd_put_circ_to_buffer(Circle circle){
 	}
 }
 static void put_figures_to_buffer(void){
+	for(int i=0; i<LCD_WIDTH*LCD_HEIGHT;i++) {
+		screen_buffer[i] = __REV16(BLUE);
+	}
+
 	for(int i=0;i<RECTS_AMOUNT;i++){
 		lcd_put_rect_to_buffer(rects[i]);
 	}

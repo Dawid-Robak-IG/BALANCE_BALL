@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <math.h>
+//#include <math.h>
 #include "figures.h"
 
 
@@ -29,6 +29,7 @@ void lcd_init(void); // to configure lcd
 void lcd_put_pixel(int x, int y, uint16_t color); // to put indyvidual pixel on screen
 void lcd_update(void); // to update state of lcd screen
 void lcd_update_circle(int x,int y,int radius,uint16_t color);
+void lcd_delta_circle(int dx,int dy,int dradius);
 void lcd_update_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t color);
 //==========================================
 

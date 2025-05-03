@@ -31,12 +31,17 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "lcd.h"
+#include "gyro.h"
+#include <stdio.h>
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+extern Gyro_Int_Data gyro_raw_data_s;
+extern Gyro_Float_Data gyro_scaled_data_s;
+extern Gyro_Int_Data gyro_offset_s;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
