@@ -15,6 +15,8 @@
 #define CYAN      0x07ff
 #define WHITE     0xffff
 
+#define BACKGROUND 0x001f
+
 #define LCD_WIDTH 240
 #define LCD_HEIGHT 320
 
@@ -28,9 +30,10 @@ extern volatile bool lcd_ready;
 void lcd_init(void); // to configure lcd
 void lcd_put_pixel(int x, int y, uint16_t color); // to put indyvidual pixel on screen
 void lcd_update(void); // to update state of lcd screen
-void lcd_update_circle(int x,int y,int radius,uint16_t color);
-void lcd_delta_circle(int dx,int dy,int dradius);
-void lcd_update_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t color);
+void lcd_update_circle(int dx,int dy,int dradius);
+void lcd_set_circle(int x,int y,int radius,uint16_t color);
+//void lcd_delta_circle(int dx,int dy,int dradius);
+void lcd_set_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t color);
 //==========================================
 
 

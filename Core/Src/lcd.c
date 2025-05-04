@@ -103,31 +103,101 @@ static void lcd_set_window(int x, int y, int width, int height){
 	lcd_data16(y);
 	lcd_data16(y+height-1);
 }
-void lcd_update_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t color){
+void lcd_set_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t color){
 	rects[idx].x = x;
 	rects[idx].y = y;
 	rects[idx].width = width;
 	rects[idx].height = height;
 	rects[idx].color = color;
 }
-void lcd_update_circle(int x,int y,int radius,uint16_t color){
+void lcd_set_circle(int x,int y,int radius,uint16_t color){
 	player.x = x;
 	player.y = y;
-	player.radius = radius;
+	player.r = radius;
 	player.color = color;
+}
+static void send_circle(uint16_t circle_color){
+	lcd_set_window(player.x - player.r, player.y-player.r, 2*player.r,2*player.r);
+
+	lcd_cmd(MEM_WRITE);
+	if(!spi5_acquire())return;
+	for(int y=player.y-player.r;y<player.y+player.r;y++){
+		for(int x=player.x-player.r;x<player.x+player.r;x++){
+			if( ( (x-player.x)*(x-player.x)+(y-player.y)*(y-player.y)) <= (player.r*player.r)){
+				lcd_data16(circle_color);
+			} else{
+				lcd_data16(BACKGROUND); // zle
+			}
+		}
+	}
+	spi5_release();
+}
+static void clear_former_horizontal(Circle former){
+	int min_y,max_y;
+
+	if(former.y-former.r < player.y - player.r){
+		min_y = former.y-former.r;
+		max_y = player.y-player.r;
+	} else{
+		min_y = player.y+player.r;
+		max_y = former.y+former.r;
+	}
+
+	int height = max_y-min_y;
+	int d_wh = 2*former.r;
+
+	lcd_set_window(former.x-former.r, min_y, d_wh, height);
+	lcd_cmd(MEM_WRITE);
+	if(!spi5_acquire()){}
+	for(int i=0;i<d_wh*height;i++){
+		lcd_data16(BACKGROUND);
+	}
+	spi5_release();
+}
+static void clear_former_vertical(Circle former){
+	int min_x,max_x;
+
+	if(former.x-former.r < player.x - player.r){
+		min_x = former.x-former.r;
+		max_x = player.x-player.r;
+	} else{
+		min_x = player.x+player.r;
+		max_x = former.x+former.r;
+	}
+
+	int width = max_x-min_x;
+	int d_wh = 2*former.r;
+
+	lcd_set_window(min_x, former.y-former.r, width, d_wh);
+	lcd_cmd(MEM_WRITE);
+	if(!spi5_acquire()){}
+	for(int i=0;i<d_wh*width;i++){
+		lcd_data16(BACKGROUND);
+	}
+	spi5_release();
+}
+static void clear_former_circle(Circle former){
+	clear_former_horizontal(former);
+	clear_former_vertical(former);
 }
 void lcd_delta_circle(int dx,int dy,int dradius){
 	player.x += dx;
 	player.y += dy;
-	player.radius += dradius;
+	player.r += dradius;
 
-	if (player.x < 0) player.x = 0;
-	else if (player.x > LCD_WIDTH) player.x = LCD_WIDTH;
-	if (player.y < 0) player.y = 0;
-	else if (player.y > LCD_HEIGHT) player.y = LCD_HEIGHT;
-	if(player.radius<0)player.radius = 0;
+	if(player.r<0 || player.r > LCD_WIDTH/6 || player.r>LCD_HEIGHT/6)player.r = 5;
+
+	if (player.x-player.r < 0) player.x = player.r;
+	else if (player.x+player.r > LCD_WIDTH) player.x = LCD_WIDTH-player.r;
+	if (player.y-player.r < 0) player.y = player.r;
+	else if (player.y+player.r > LCD_HEIGHT) player.y = LCD_HEIGHT-player.r;
 }
-
+void lcd_update_circle(int dx,int dy,int dradius){
+	Circle former = player;
+	lcd_delta_circle(dx, dy, dradius);
+	if(dx!=0 ||  dy!=0)clear_former_circle(former);
+	send_circle(player.color);
+}
 void lcd_put_pixel(int x, int y, uint16_t color){
 	screen_buffer[ (LCD_WIDTH*y) + x] = __REV16(color); //to make send most significant bit first
 }
@@ -141,13 +211,10 @@ static void lcd_put_rect_to_buffer(Rectangle rect){
 	}
 }
 static void lcd_put_circ_to_buffer(Circle circle){
-	for(int y=circle.y-circle.radius;y<circle.y+circle.radius;y++){
-		for(int x=circle.x-circle.radius;x<circle.x+circle.radius;x++){
+	for(int y=circle.y-circle.r;y<circle.y+circle.r;y++){
+		for(int x=circle.x-circle.r;x<circle.x+circle.r;x++){
 			if(x>=0 && x<LCD_WIDTH && y>=0 && y<LCD_HEIGHT){
-//				if ((pow(x - circle.x, 2) + pow(y - circle.y, 2)) <= pow(circle.radius, 2)){
-//					lcd_put_pixel(x, y, circle.color);
-//				}
-				if( ( (x-circle.x)*(x-circle.x)+(y-circle.y)*(y-circle.y)) <= (circle.radius*circle.radius)){
+				if( ( (x-circle.x)*(x-circle.x)+(y-circle.y)*(y-circle.y)) <= (circle.r*circle.r)){
 					lcd_put_pixel(x, y, circle.color);
 				}
 			}

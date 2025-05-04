@@ -2,121 +2,233 @@
 #include "spi.h"
 #include "usart.h"
 #include <stdio.h>
-
-//Makra do zarządzania CS
-#define I3G4250D_CS_LOW()  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET)
-#define I3G4250D_CS_HIGH() HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET)
-
+#include <string.h>
 
 #define CTRL_REG1 0x20         // Rejestr kontrolny 1 (aktywny tryb)
+#define CTRL_REG4 0x23
 #define OUT_X_L 0x28           // Rejestr danych X (niższy bajt)
 #define OUT_X_H 0x29           // Rejestr danych X (wyższy bajt)
 #define OUT_Y_L 0x2A           // Rejestr danych Y (niższy bajt)
 #define OUT_Y_H 0x2B           // Rejestr danych Y (wyższy bajt)
 #define OUT_Z_L 0x2C           // Rejestr danych Z (niższy bajt)
 #define OUT_Z_H 0x2D           // Rejestr danych Z (wyższy bajt)
+#define MOVING_AVERAGE_WINDOW 10  // Okno do filtrowania
+#define SENSITIVITY 0x30        //250dps (0x00) 2000(0300)
+
+static int16_t x_data[MOVING_AVERAGE_WINDOW];
+static int16_t y_data[MOVING_AVERAGE_WINDOW];
+static int16_t z_data[MOVING_AVERAGE_WINDOW];
+static uint8_t data_index = 0;
 
 ssize_t _write(int file, const char *data, size_t len) {
-    HAL_UART_Transmit(&huart1, (uint8_t *)data, len, HAL_MAX_DELAY);  // Wysyłanie danych przez UART
-    return len;  // Zwracamy liczbę wysłanych bajtów
+	HAL_UART_Transmit(&huart1, (uint8_t*) data, len, HAL_MAX_DELAY); // Wysyłanie danych przez UART
+	return len;
 }
 
+void gyro_init(void) {
+	uint8_t configData[2] = { CTRL_REG1, 0x0F }; // PD=1, Zen=1, Yen=1, Xen=;
 
-void gyro_init(void){
+	if (!spi5_acquire())
+		return;
 
-	//  uint8_t data = 0x0F; //(PD=1, Zen=1, Yen=1, Xen=1) włącz:zasilanie, oś Z, oś Y, oś X
-	  uint8_t configData[2];
-	  configData[0]=CTRL_REG1;
-	  configData[1]=0x0F;
+	GYRO_CS_LOW();
+	HAL_SPI_Transmit(&hspi5, configData, 2, 100);
+	GYRO_CS_HIGH();
 
-	  if (!spi5_acquire()){
+	spi5_release();
 
-		  return;  // Jeśli SPI jest zajęte, zakończ funkcję
-	  }
+	gyro_set_sensitivity();
 
-	  //HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);  // Wybór urządzenia
-	//  HAL_Delay(50);
-	  HAL_SPI_Transmit(&hspi5, configData, 2, HAL_MAX_DELAY);  // Transmisja danych
-	//  HAL_Delay(50);
-	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);  // Zakończenie komunikacji
-
-	  spi5_release();  // Zwolnienie SPI
+	// Weryfikacja połączenia
+	gyro_ReadWhoAmI();
 }
 
+void gyro_set_sensitivity() {
+	uint8_t configData[2] = { CTRL_REG4, SENSITIVITY };
 
-uint8_t I3G4250D_ReadWhoAmI(void)
-{
-    uint8_t tx = 0x0F | 0x80;
-    uint8_t rx = 0;
+	if (!spi5_acquire())
+		return;
 
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
-    HAL_SPI_TransmitReceive(&hspi5, tx, rx, 2, HAL_MAX_DELAY);
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
-    return rx;
+	GYRO_CS_LOW();
+	HAL_SPI_Transmit(&hspi5, configData, 2, 100);
+	GYRO_CS_HIGH();
+
+	spi5_release();
 }
 
+void gyro_get_filtered_data(Gyro_Int_Data *gyro_data) {
+	//int16_t x_raw, y_raw, z_raw;
+	int32_t x_sum = 0, y_sum = 0, z_sum = 0;
+	Gyro_Int_Data raw_data;
+	// Bufory do filtracji
+	memset(x_data, 0, sizeof(x_data));
+	memset(y_data, 0, sizeof(y_data));
+	memset(z_data, 0, sizeof(z_data));
+	data_index = 0;
 
-void I3G4250D_ReadGyro(int16_t *gx, int16_t *gy, int16_t *gz)
-{
-    uint8_t tx =OUT_X_L | 0x80 | 0x40;
-    uint8_t rx[6];
+	gyro_get_data(&raw_data);
 
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(&hspi5, &tx, 1, HAL_MAX_DELAY);
-    HAL_SPI_Receive(&hspi5, rx, 6, HAL_MAX_DELAY);
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+	// Aktualizacja bufora
+	x_data[data_index] = raw_data.x;
+	y_data[data_index] = raw_data.y;
+	z_data[data_index] = raw_data.z;
 
-    *gx = (int16_t)(rx[1] << 8 | rx[0]);
-    *gy = (int16_t)(rx[3] << 8 | rx[2]);
-    *gz = (int16_t)(rx[5] << 8 | rx[4]);
+	//Średnia
+	for (uint8_t i = 0; i < MOVING_AVERAGE_WINDOW; i++) {
+		x_sum += x_data[i];
+		y_sum += y_data[i];
+		z_sum += z_data[i];
+	}
+
+	gyro_data->x = x_sum / MOVING_AVERAGE_WINDOW;
+	gyro_data->y = y_sum / MOVING_AVERAGE_WINDOW;
+	gyro_data->z = z_sum / MOVING_AVERAGE_WINDOW;
+
+	// Aktualizuj indeks
+	data_index = (data_index + 1) % MOVING_AVERAGE_WINDOW;
 }
 
+void gyro_ReadWhoAmI(void) {
+	uint8_t tx = WHO_AM_I | 0x80;
+	uint8_t rx = 0;
 
-void gyro_write(uint8_t reg, uint8_t* data, uint16_t size) {
-    // Zajmujemy się tylko wysyłaniem komend do żyroskopu przez SPI
-    uint8_t txData[256];  // Zmienna do przechowania danych
+	if (!spi5_acquire())
+		return;
 
-    // Rejestr, do którego będziemy pisać
-    txData[0] = reg | 0x40;  // Ustawiamy 0x40, żeby mówić, że to zapis
-    memcpy(&txData[1], data, size);
+	GYRO_CS_LOW();
+	HAL_SPI_Transmit(&hspi5, &tx, 1, 10);
+	HAL_SPI_Receive(&hspi5, &rx, 1, 10);
+	GYRO_CS_HIGH();
 
-    // Wysyłamy dane przez SPI
-    if (spi5_acquire()) {
-        HAL_SPI_Transmit(&hspi5, txData, size + 1, HAL_MAX_DELAY);
-        spi5_release();
-    }
+	spi5_release();
+
+	if (rx != 0xD3) {
+		printf("WHO_AM_I error: 0x%02X (expected 0xD3)\r\n", rx);
+	} else {
+		printf("WHO_AM_I OK: 0x%02X\r\n", rx);
+	}
+}
+
+void gyro_get_data(Gyro_Int_Data *gyro_data) {
+
+	uint8_t tx = OUT_X_L | 0x80 | 0x40;
+	uint8_t rx[6];
+	if (gyro_is_data_ready()==false) {
+		printf("Data not ready\r\n");
+		return;
+	}
+
+	if (!spi5_acquire())
+		return;
+
+	GYRO_CS_LOW();
+	HAL_SPI_Transmit(&hspi5, &tx, 1, 10);
+	HAL_SPI_Receive(&hspi5, rx, 6, 10);
+	GYRO_CS_HIGH();
+
+	spi5_release();
+
+	gyro_data->x = (int16_t) (rx[1] << 8 | rx[0]);
+	gyro_data->y = (int16_t) (rx[3] << 8 | rx[2]);
+	gyro_data->z = (int16_t) (rx[5] << 8 | rx[4]);
 
 }
 
-void gyro_read(uint8_t reg, uint8_t* data, uint16_t size) {
-    uint8_t txData[256];
+bool gyro_is_data_ready(void) {
+	uint8_t tx = STATUS_REG | 0x80;
+	uint8_t rx = 0;
 
-    // Rejestr, z którego będziemy odczytywać
-    txData[0] = reg | 0x80;  // Ustawiamy 0x80, żeby mówić, że to odczyt
-    memset(&txData[1], 0, size);  // Wypełniamy resztę bufora zerami (właśnie będziemy odczytywać)
+	if (!spi5_acquire())
+		return false;
 
-    // Wysyłamy zapytanie i odczytujemy dane przez SPI
-    if (spi5_acquire()) {
-        HAL_SPI_TransmitReceive(&hspi5, txData, data, size + 1, HAL_MAX_DELAY);
-        spi5_release();
-    }
+	GYRO_CS_LOW();
+	HAL_SPI_Transmit(&hspi5, &tx, 1, 10);
+	HAL_SPI_Receive(&hspi5, &rx, 1, 10);
+	GYRO_CS_HIGH();
 
+	spi5_release();
+
+	return (rx & 0x08);
 }
 
+void gyro_calculate_offset(Gyro_Int_Data *offset) {
+	int32_t sum_x = 0, sum_y = 0, sum_z = 0;
+	const uint16_t samples = 500;
+	Gyro_Int_Data raw_data;
 
-void gyro_get_data(int16_t* x, int16_t* y, int16_t* z) {
-    uint8_t data[6];  //każda oś 2 bajty
+	printf("Starting calibration...\r\n");
 
-    gyro_read(0x28, data, 6);
+	for (uint16_t i = 0; i < samples; i++) {
+		gyro_get_data(&raw_data);
+		sum_x += raw_data.x;
+		sum_y += raw_data.y;
+		sum_z += raw_data.z;
+		HAL_Delay(10);
 
-    printf("Raw data: ");
-    for (int i = 0; i < 6; i++) {
-        printf("%02X \r\n", data[i]);
-    }
+		if (i % 100 == 0)
+			printf(".\r\n");
+	}
 
-    // Łączymy dane w 16-bitowe wartości
-    *x = (int16_t)((data[1] << 8) | data[0]);  // Odczyt osi X
-    *y = (int16_t)((data[3] << 8) | data[2]);  // Odczyt osi Y
-    *z = (int16_t)((data[5] << 8) | data[4]);  // Odczyt osi Z
+	offset->x = sum_x / samples;
+	offset->y = sum_y / samples;
+	offset->z = sum_z / samples;
+
+	printf("\nCalibration complete. Offsets: X=%d, Y=%d, Z=%d\r\n", offset->x,
+			offset->y, offset->z);
 }
+
+void gyro_compensate_and_scale(Gyro_Int_Data *gyro_data, Gyro_Int_Data *offset, Gyro_Float_Data *gyro_calibrated_dat) {
+
+	// uwzględenienie kalibracji
+	gyro_data->x -= offset->x;
+	gyro_data->y -= offset->y;
+	gyro_data->z -= offset->z;
+
+	float scale = 1.0f;
+
+	if (SENSITIVITY == 0x30)
+		scale = 2000.0f / 32768.0f;
+
+	if (SENSITIVITY == 0x00)
+		scale = 250.0f / 32768.0f;
+
+	// Konwersja do dps (dla skali 2000dps)
+	gyro_calibrated_dat->x = gyro_data->x * scale;
+	gyro_calibrated_dat->y = gyro_data->y * scale;
+	gyro_calibrated_dat->z = gyro_data->z * scale;
+
+	printf("X: %.2f dps, Y: %.2f dps, Z: %.2f dps\r\n", gyro_calibrated_dat->x, gyro_calibrated_dat->y, gyro_calibrated_dat->z);
+}
+
+//void gyro_write(uint8_t reg, uint8_t* data, uint16_t size) {
+//    // Zajmuje się tylko wysyłaniem komend do żyroskopu przez SPI
+//    uint8_t txData[256];  // Zmienna do przechowania danych
+//
+//    // Rejestr, do którego będziemy pisać
+//    txData[0] = reg | 0x40;  // Ustawiamy 0x40, żeby mówić, że to zapis
+//    memcpy(&txData[1], data, size);
+//
+//    // Wysyła dane przez SPI
+//    if (spi5_acquire()) {
+//        HAL_SPI_Transmit(&hspi5, txData, size + 1, HAL_MAX_DELAY);
+//        spi5_release();
+//    }
+//
+//}
+//
+//void gyro_read(uint8_t reg, uint8_t* data, uint16_t size) {
+//    uint8_t txData[256];
+//
+//    // Rejestr, z którego będziemy odczytywać
+//    txData[0] = reg | 0x80;  // Ustawiamy 0x80, żeby mówić, że to odczyt
+//    memset(&txData[1], 0, size);  // Wypełniamy resztę bufora zerami (właśnie będziemy odczytywać)
+//
+//    // Wysyłamy zapytanie i odczytujemy dane przez SPI
+//    if (spi5_acquire()) {
+//        HAL_SPI_TransmitReceive(&hspi5, txData, data, size + 1, HAL_MAX_DELAY);
+//        spi5_release();
+//    }
+//
+//}
+//
+
