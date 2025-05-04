@@ -75,15 +75,21 @@ void MX_FREERTOS_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void ball_set_speed(){
-	int dx = (int)(gyro_scaled_data_s.x);
+	int dx = (int)(gyro_scaled_data_s.x) - 13;
 	int dy = (int)(gyro_scaled_data_s.y);
 
-	if (abs(dx) < 1.5) dx=0;
-	if (abs(dy) < 1.5) dy=0;
+	if (abs(dx) < 5) dx=0;
+	if (abs(dy) < 5) dy=0;
 	if(dx==0 && dy==0)return;
 
-	speed_x += dx/5.0f;
-	speed_y += dy/5.0f;
+	speed_x -= dy;
+	speed_y -= dx;
+//	if(abs(dx)<10)speed_x-=5 * dx/dx;
+//	else speed_x -= 10 * dx/dx;
+//
+//	if(abs(dy)<10)speed_y-=5 * dy/dy;
+//	else speed_y -= 10 * dy/dy;
+
 
 //	speed_x = -3;
 //	speed_y = -3;
@@ -197,12 +203,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 	while (1) {
-		printf("Going to filter gyro\r\n");
 		gyro_get_filtered_data(&gyro_raw_data_s);
 		gyro_compensate_and_scale(&gyro_raw_data_s, &gyro_offset_s, &gyro_scaled_data_s);
 		ball_set_speed();
+		printf("%d %d\r\n",speed_x, speed_y);
 //		lcd_update();
-		HAL_Delay(300);
+		HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
