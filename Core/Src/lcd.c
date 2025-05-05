@@ -23,8 +23,6 @@
 #define POS_GAMMA_COR 0xE0
 #define NEG_GAMMA_COR 0xE1
 
-Rectangle rects[RECTS_AMOUNT];
-Circle player;
 
 volatile static uint16_t screen_buffer[LCD_WIDTH * LCD_HEIGHT];
 static uint16_t current_chunk = 0;
@@ -33,6 +31,10 @@ static uint16_t chunk_size;
 static uint16_t y_per_chunk;
 
 volatile bool lcd_ready=true;
+
+volatile Rectangle rects[RECTS_AMOUNT];
+volatile Circle player;
+
 
 
 static const uint16_t init_table[] = {
@@ -118,7 +120,6 @@ void lcd_set_circle(int x,int y,int radius,uint16_t color){
 }
 static void send_circle(uint16_t circle_color){
 	lcd_set_window(player.x - player.r, player.y-player.r, 2*player.r,2*player.r);
-
 	lcd_cmd(MEM_WRITE);
 	if(!spi5_acquire())return;
 	for(int y=player.y-player.r;y<player.y+player.r;y++){
@@ -148,7 +149,7 @@ static void clear_former_horizontal(Circle former){
 
 	lcd_set_window(former.x-former.r, min_y, d_wh, height);
 	lcd_cmd(MEM_WRITE);
-	if(!spi5_acquire()){}
+	if(!spi5_acquire()){return;}
 	for(int i=0;i<d_wh*height;i++){
 		lcd_data16(BACKGROUND);
 	}
@@ -170,7 +171,7 @@ static void clear_former_vertical(Circle former){
 
 	lcd_set_window(min_x, former.y-former.r, width, d_wh);
 	lcd_cmd(MEM_WRITE);
-	if(!spi5_acquire()){}
+	if(!spi5_acquire()){return;}
 	for(int i=0;i<d_wh*width;i++){
 		lcd_data16(BACKGROUND);
 	}
@@ -275,3 +276,27 @@ void go_for_next_chunk(void){
 	}
 }
 
+
+bool check_collision(Rectangle rec, int next_x, int next_y){
+
+
+	 if ((next_x < rec.x + rec.width + player.r) &&
+		              (next_x > rec.x - player.r) &&
+		              (next_y > rec.y - player.r) &&
+		              (next_y < rec.y + rec.height + player.r))return true;
+
+	return false;
+}
+
+
+bool check_inside_screen(int next_x, int next_y){
+
+
+
+	  if (next_x - player.r <= 0 || next_x + player.r >= LCD_WIDTH || next_y - player.r <= 0 || next_y + player.r >= LCD_HEIGHT) {
+
+		       return false;
+		    }
+
+	return true;
+}

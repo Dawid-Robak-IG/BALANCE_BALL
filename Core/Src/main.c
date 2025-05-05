@@ -62,6 +62,7 @@ Gyro_Int_Data gyro_offset_s = { 0 };
 
 int16_t speed_x = 0;
 int16_t speed_y = 0;
+int16_t max_speed = 35;
 
 /* USER CODE END PV */
 
@@ -75,15 +76,35 @@ void MX_FREERTOS_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void ball_set_speed(){
-	int dx = (int)(gyro_scaled_data_s.x) - 13;
-	int dy = (int)(gyro_scaled_data_s.y);
+	int dx = (int)(gyro_scaled_data_s.y) ;
+	int dy = (int)(gyro_scaled_data_s.x);
 
-	if (abs(dx) < 5) dx=0;
-	if (abs(dy) < 5) dy=0;
-	if(dx==0 && dy==0)return;
+	if (abs(dx) < 2) dx=0;
+	if (abs(dy) < 2) dy=0;
+//	if(dx==0 && dy==0)
+//		return;
 
-	speed_x -= dy;
-	speed_y -= dx;
+	if(dx==0){
+		speed_x*=0.99;
+		//speed_x*=1;
+	}else{
+		speed_x -= 0.1*dx;
+	}
+
+	if(dy==0){
+			speed_y*=0.99;
+			//speed_x*=1;
+		}
+	else{
+		speed_y -=  0.1*dy;
+	}
+
+
+	if (speed_x > max_speed) speed_x = max_speed;
+	if (speed_x < -max_speed) speed_x = -max_speed;
+
+	if (speed_y > max_speed) speed_y = max_speed;
+    if (speed_y < -max_speed) speed_y = -max_speed;
 //	if(abs(dx)<10)speed_x-=5 * dx/dx;
 //	else speed_x -= 10 * dx/dx;
 //
@@ -94,7 +115,31 @@ void ball_set_speed(){
 //	speed_x = -3;
 //	speed_y = -3;
 }
+
+
+
 void ball_move(){
+	 int next_x = player.x + speed_x;
+	 int next_y = player.y + speed_y;
+
+	    if(!check_inside_screen(next_x,next_y)){
+	    			speed_x*=-1;
+	    			speed_y*=-1;
+	    			return;
+	    	}
+
+
+	    for (int i = 0; i < RECTS_AMOUNT; i++) {
+
+	          if (check_collision(rects[i],next_x,next_y)) {
+	              speed_x *= -1;
+	              speed_y *= -1;
+	              return;
+	          }
+	      }
+
+
+
 	lcd_update_circle(speed_x, speed_y, 0);
 	// odbicie -> lcd_update_circle(-0.5*speed_x, -0.5*speed_y, 0);
 }
@@ -126,8 +171,9 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi) {
 	}
 }
 void set_new_figs(void) {
-	lcd_set_rectangle(0, 0, 0, 100, 100, RED);
-	lcd_set_circle(LCD_WIDTH/2, LCD_HEIGHT/2, 20, GREEN);
+	lcd_set_rectangle(0, 50, 0, 150, 100, RED);
+	//lcd_set_rectangle(1, 50, 50, 200, 100, YELLOW);
+	lcd_set_circle(LCD_WIDTH/2, LCD_HEIGHT/2, 10, GREEN);
 }
 
 
@@ -186,7 +232,7 @@ int main(void)
 	HAL_Delay(300); //żeby LCD skończył swoje przesyłanie
 	gyro_init();
 	gyro_calculate_offset(&gyro_offset_s);
-
+	//HAL_Delay(300);
 	HAL_TIM_Base_Start_IT(&htim7);
 
   /* USER CODE END 2 */
@@ -203,12 +249,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 	while (1) {
-		gyro_get_filtered_data(&gyro_raw_data_s);
-		gyro_compensate_and_scale(&gyro_raw_data_s, &gyro_offset_s, &gyro_scaled_data_s);
-		ball_set_speed();
-		printf("%d %d\r\n",speed_x, speed_y);
+		//gyro_get_filtered_data(&gyro_raw_data_s);
+		//gyro_compensate_and_scale(&gyro_raw_data_s, &gyro_offset_s, &gyro_scaled_data_s);
+
+		//printf("%d %d\r\n",speed_x, speed_y);
 //		lcd_update();
-		HAL_Delay(100);
+		//HAL_Delay(50);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -285,7 +331,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
   /* USER CODE BEGIN Callback 1 */
   else if(htim->Instance == TIM7) {
-	  ball_move();
+	  gyro_get_filtered_data(&gyro_raw_data_s);
+	  		gyro_compensate_and_scale(&gyro_raw_data_s, &gyro_offset_s, &gyro_scaled_data_s);
+
+	  ball_set_speed();
+	 ball_move();
   }
   /* USER CODE END Callback 1 */
 }
