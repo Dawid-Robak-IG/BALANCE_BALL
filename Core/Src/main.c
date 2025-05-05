@@ -62,7 +62,7 @@ Gyro_Int_Data gyro_offset_s = { 0 };
 
 int16_t speed_x = 0;
 int16_t speed_y = 0;
-int16_t max_speed = 35;
+int16_t max_speed = 20;
 
 /* USER CODE END PV */
 
@@ -122,21 +122,20 @@ void ball_move(){
 	 int next_x = player.x + speed_x;
 	 int next_y = player.y + speed_y;
 
-	    if(!check_inside_screen(next_x,next_y)){
-	    			speed_x*=-1;
-	    			speed_y*=-1;
-	    			return;
-	    	}
+	if(!check_inside_screen(next_x,next_y)){
+			speed_x*=-1;
+			speed_y*=-1;
+			return;
+	}
 
 
-	    for (int i = 0; i < RECTS_AMOUNT; i++) {
-
-	          if (check_collision(rects[i],next_x,next_y)) {
-	              speed_x *= -1;
-	              speed_y *= -1;
-	              return;
-	          }
-	      }
+	for (int i = 0; i < RECTS_AMOUNT; i++) {
+		if (check_collision(rects[i],next_x,next_y)) {
+			speed_x *= -1;
+			speed_y *= -1;
+			return;
+		}
+	}
 
 
 
@@ -232,7 +231,7 @@ int main(void)
 	HAL_Delay(300); //żeby LCD skończył swoje przesyłanie
 	gyro_init();
 	gyro_calculate_offset(&gyro_offset_s);
-	//HAL_Delay(300);
+	HAL_Delay(300);
 	HAL_TIM_Base_Start_IT(&htim7);
 
   /* USER CODE END 2 */
@@ -249,12 +248,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 	while (1) {
-		//gyro_get_filtered_data(&gyro_raw_data_s);
-		//gyro_compensate_and_scale(&gyro_raw_data_s, &gyro_offset_s, &gyro_scaled_data_s);
+//		gyro_get_filtered_data(&gyro_raw_data_s);
+//		gyro_compensate_and_scale(&gyro_raw_data_s, &gyro_offset_s, &gyro_scaled_data_s);
+//		ball_set_speed();
 
-		//printf("%d %d\r\n",speed_x, speed_y);
 //		lcd_update();
-		//HAL_Delay(50);
+		HAL_Delay(200);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -331,10 +330,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
   /* USER CODE BEGIN Callback 1 */
   else if(htim->Instance == TIM7) {
-	  gyro_get_filtered_data(&gyro_raw_data_s);
-	  		gyro_compensate_and_scale(&gyro_raw_data_s, &gyro_offset_s, &gyro_scaled_data_s);
+	 gyro_get_filtered_data(&gyro_raw_data_s);
+	 gyro_compensate_and_scale(&gyro_raw_data_s, &gyro_offset_s, &gyro_scaled_data_s);
 
-	  ball_set_speed();
+	 ball_set_speed();
 	 ball_move();
   }
   /* USER CODE END Callback 1 */
