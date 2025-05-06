@@ -38,7 +38,8 @@ Core/Src/gyro.o: ../Core/Src/gyro.c ../Core/Inc/gyro.h ../Core/Inc/spi.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_hcd.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h ../Core/Inc/lcd.h \
- ../Core/Inc/figures.h ../Core/Inc/gyro.h ../Core/Inc/usart.h
+ ../Core/Inc/figures.h ../Core/Inc/gyro.h ../Core/Inc/ball_physics.h \
+ ../Core/Inc/spi.h ../Core/Inc/usart.h ../Core/Inc/usart.h
 ../Core/Inc/gyro.h:
 ../Core/Inc/spi.h:
 ../Core/Inc/main.h:
@@ -84,4 +85,7 @@ Core/Src/gyro.o: ../Core/Src/gyro.c ../Core/Inc/gyro.h ../Core/Inc/spi.h \
 ../Core/Inc/lcd.h:
 ../Core/Inc/figures.h:
 ../Core/Inc/gyro.h:
+../Core/Inc/ball_physics.h:
+../Core/Inc/spi.h:
+../Core/Inc/usart.h:
 ../Core/Inc/usart.h:

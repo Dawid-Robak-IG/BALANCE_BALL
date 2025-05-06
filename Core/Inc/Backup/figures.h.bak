@@ -13,6 +13,6 @@ typedef struct{
 typedef struct{
 	int x;
 	int y;
-	int radius;
+	int r;
 	uint16_t color;
 } Circle;

@@ -23,8 +23,6 @@
 #define POS_GAMMA_COR 0xE0
 #define NEG_GAMMA_COR 0xE1
 
-Rectangle rects[RECTS_AMOUNT];
-Circle player;
 
 volatile static uint16_t screen_buffer[LCD_WIDTH * LCD_HEIGHT];
 static uint16_t current_chunk = 0;
@@ -33,6 +31,10 @@ static uint16_t chunk_size;
 static uint16_t y_per_chunk;
 
 volatile bool lcd_ready=true;
+
+volatile Rectangle rects[RECTS_AMOUNT];
+volatile Circle player;
+
 
 
 static const uint16_t init_table[] = {
@@ -113,61 +115,91 @@ void lcd_set_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t co
 void lcd_set_circle(int x,int y,int radius,uint16_t color){
 	player.x = x;
 	player.y = y;
-	player.radius = radius;
+	player.r = radius;
 	player.color = color;
 }
-static void send_background_on_circle(){
-	current_chunk = how_many_chunks;
-	lcd_set_window(player.x - player.radius, player.y-player.radius, 2*player.radius,2*player.radius);
-
+static void send_circle(uint16_t circle_color){
+	lcd_set_window(player.x - player.r, player.y-player.r, 2*player.r,2*player.r);
 	lcd_cmd(MEM_WRITE);
-	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_RESET);
-
-	if (!spi5_acquire()) return;
-
-	for (int i = 0; i < 4*player.radius*player.radius; i++)
-			lcd_data16(BACKGROUND);
-
-	spi5_release();
-}
-static void send_circle(){
-	current_chunk = how_many_chunks;
-	lcd_set_window(player.x - player.radius, player.y-player.radius, 2*player.radius,2*player.radius);
-
-	lcd_cmd(MEM_WRITE);
-	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_RESET);
-
-	while(!spi5_acquire()){}
-
-	for(int y=player.y-player.radius;y<player.y+player.radius;y++){
-		for(int x=player.x-player.radius;x<player.x+player.radius;x++){
-			if( ( (x-player.x)*(x-player.x)+(y-player.y)*(y-player.y)) <= (player.radius*player.radius)){
-				lcd_data16(player.color);
+	if(!spi5_acquire())return;
+	for(int y=player.y-player.r;y<player.y+player.r;y++){
+		for(int x=player.x-player.r;x<player.x+player.r;x++){
+			if( ( (x-player.x)*(x-player.x)+(y-player.y)*(y-player.y)) <= (player.r*player.r)){
+				lcd_data16(circle_color);
 			} else{
-				lcd_data16(BACKGROUND);
+				lcd_data16(BACKGROUND); // zle
 			}
 		}
 	}
-
 	spi5_release();
+}
+static void clear_former_horizontal(Circle former){
+	int min_y,max_y;
+
+	if(former.y-former.r < player.y - player.r){
+		min_y = former.y-former.r;
+		max_y = player.y-player.r;
+	} else{
+		min_y = player.y+player.r;
+		max_y = former.y+former.r;
+	}
+
+	int height = max_y-min_y;
+	int d_wh = 2*former.r;
+	if(height>d_wh)height=d_wh;
+
+	lcd_set_window(former.x-former.r, min_y, d_wh, height);
+	lcd_cmd(MEM_WRITE);
+	if(!spi5_acquire()){return;}
+	for(int i=0;i<d_wh*height;i++){
+		lcd_data16(BACKGROUND);
+	}
+	spi5_release();
+}
+static void clear_former_vertical(Circle former){
+	int min_x,max_x;
+
+	if(former.x-former.r < player.x - player.r){
+		min_x = former.x-former.r;
+		max_x = player.x-player.r;
+	} else{
+		min_x = player.x+player.r;
+		max_x = former.x+former.r;
+	}
+
+	int width = max_x-min_x;
+	int d_wh = 2*former.r;
+	if(width>d_wh)width=2*d_wh;
+
+	lcd_set_window(min_x, former.y-former.r, width, d_wh);
+	lcd_cmd(MEM_WRITE);
+	if(!spi5_acquire()){return;}
+	for(int i=0;i<d_wh*width;i++){
+		lcd_data16(BACKGROUND);
+	}
+	spi5_release();
+}
+static void clear_former_circle(Circle former){
+	clear_former_horizontal(former);
+	clear_former_vertical(former);
 }
 void lcd_delta_circle(int dx,int dy,int dradius){
 	player.x += dx;
 	player.y += dy;
-	player.radius += dradius;
+	player.r += dradius;
 
-	if (player.x < 0) player.x = 0;
-	else if (player.x > LCD_WIDTH) player.x = LCD_WIDTH;
-	if (player.y < 0) player.y = 0;
-	else if (player.y > LCD_HEIGHT) player.y = LCD_HEIGHT;
-	if(player.radius<0)player.radius = 0;
+	if(player.r<0 || player.r > LCD_WIDTH/6 || player.r>LCD_HEIGHT/6)player.r = 5;
+
+	if (player.x-player.r < 0) player.x = player.r;
+	else if (player.x+player.r > LCD_WIDTH) player.x = LCD_WIDTH-player.r;
+	if (player.y-player.r < 0) player.y = player.r;
+	else if (player.y+player.r > LCD_HEIGHT) player.y = LCD_HEIGHT-player.r;
 }
 void lcd_update_circle(int dx,int dy,int dradius){
-	send_background_on_circle();
+	Circle former = player;
 	lcd_delta_circle(dx, dy, dradius);
-	send_circle();
+	if(dx!=0 ||  dy!=0)clear_former_circle(former);
+	send_circle(player.color);
 }
 void lcd_put_pixel(int x, int y, uint16_t color){
 	screen_buffer[ (LCD_WIDTH*y) + x] = __REV16(color); //to make send most significant bit first
@@ -182,10 +214,10 @@ static void lcd_put_rect_to_buffer(Rectangle rect){
 	}
 }
 static void lcd_put_circ_to_buffer(Circle circle){
-	for(int y=circle.y-circle.radius;y<circle.y+circle.radius;y++){
-		for(int x=circle.x-circle.radius;x<circle.x+circle.radius;x++){
+	for(int y=circle.y-circle.r;y<circle.y+circle.r;y++){
+		for(int x=circle.x-circle.r;x<circle.x+circle.r;x++){
 			if(x>=0 && x<LCD_WIDTH && y>=0 && y<LCD_HEIGHT){
-				if( ( (x-circle.x)*(x-circle.x)+(y-circle.y)*(y-circle.y)) <= (circle.radius*circle.radius)){
+				if( ( (x-circle.x)*(x-circle.x)+(y-circle.y)*(y-circle.y)) <= (circle.r*circle.r)){
 					lcd_put_pixel(x, y, circle.color);
 				}
 			}
@@ -246,3 +278,19 @@ void go_for_next_chunk(void){
 	}
 }
 
+
+bool check_collision(Rectangle rec, int next_x, int next_y){
+	 if ((next_x < rec.x + rec.width + player.r) &&
+		              (next_x > rec.x - player.r) &&
+		              (next_y > rec.y - player.r) &&
+		              (next_y < rec.y + rec.height + player.r))return true;
+	return false;
+}
+
+
+bool check_inside_screen(int next_x, int next_y){
+	  if (next_x - player.r <= 0 || next_x + player.r >= LCD_WIDTH || next_y - player.r <= 0 || next_y + player.r >= LCD_HEIGHT) {
+		   return false;
+		}
+	return true;
+}

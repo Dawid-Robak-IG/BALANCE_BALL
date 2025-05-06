@@ -22,11 +22,11 @@ typedef struct {
     int16_t z;
 } Gyro_Int_Data;
 
-typedef struct {
-    float x;
-    float y;
-    float z;
-} Gyro_Float_Data;
+//typedef struct {
+//    float x;
+//    float y;
+//    float z;
+//} Gyro_Float_Data;
 
 
 
@@ -37,7 +37,7 @@ bool gyro_is_data_ready(void);
 void gyro_get_data(Gyro_Int_Data *gyro_data);
 void gyro_get_filtered_data(Gyro_Int_Data *gyro_data);
 void gyro_calculate_offset(Gyro_Int_Data *offset);
-void gyro_compensate_and_scale(Gyro_Int_Data *gyro_data,Gyro_Int_Data *offset, Gyro_Float_Data *gyro_calibrated_dat);
+void gyro_compensate_and_scale(Gyro_Int_Data *gyro_data,Gyro_Int_Data *offset, Gyro_Int_Data *gyro_calibrated_dat);
 
 
 //void gyro_write(uint8_t reg, uint8_t* data, uint16_t size);
