@@ -25,6 +25,7 @@
 
 
 volatile static uint16_t screen_buffer[LCD_WIDTH * LCD_HEIGHT];
+//volatile static uint16_t circle_buffer[4 * CIRCLE_RADIUS * CIRCLE_RADIUS];
 static uint16_t current_chunk = 0;
 static uint16_t how_many_chunks = 4;
 static uint16_t chunk_size;
@@ -133,6 +134,19 @@ static void send_circle(uint16_t circle_color){
 	}
 	spi5_release();
 }
+//static void send_circle_buffer(void){
+//	current_chunk = how_many_chunks;
+//	lcd_set_window(player.x - player.r, player.y-player.r, 2*player.r,2*player.r);
+//	lcd_cmd(MEM_WRITE);
+//	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_SET);
+//	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_RESET);
+//
+//	if (!spi5_acquire()) return;
+//
+//	HAL_SPI_Transmit_DMA(&hspi5, (uint8_t*)circle_buffer, 2*4*player.r*player.r);
+//
+//	spi5_release();
+//}
 static void clear_former_horizontal(Circle former){
 	int min_y,max_y;
 
@@ -200,6 +214,7 @@ void lcd_update_circle(int dx,int dy,int dradius){
 	lcd_delta_circle(dx, dy, dradius);
 	if(dx!=0 ||  dy!=0)clear_former_circle(former);
 	send_circle(player.color);
+	//	send_circle_buffer();
 }
 void lcd_put_pixel(int x, int y, uint16_t color){
 	screen_buffer[ (LCD_WIDTH*y) + x] = __REV16(color); //to make send most significant bit first
@@ -234,8 +249,23 @@ static void put_figures_to_buffer(void){
 	}
 	lcd_put_circ_to_buffer(player);
 }
+//static void fill_circle_buffer(void){
+//	uint16_t dist_x,dist_y;
+//	for(int y=0;y<player.r*2;y++){
+//		for(int x=0;x<player.r*2;x++){
+//			dist_x = (x-player.r)*(x-player.r);
+//			dist_y = (y-player.r)*(y-player.r);
+//			if( dist_x+dist_y <= (player.r*player.r) ){
+//				circle_buffer[(2*player.r*y) + x] = __REV16(player.color);
+//			} else{
+//				circle_buffer[(2*player.r*y) + x] = __REV16(BACKGROUND);
+//			}
+//		}
+//	}
+//}
 void lcd_update(void){
 	put_figures_to_buffer();
+//	fill_circle_buffer();
 
 	current_chunk = 0;
 	lcd_set_window(0, current_chunk*y_per_chunk, LCD_WIDTH, LCD_HEIGHT/how_many_chunks);

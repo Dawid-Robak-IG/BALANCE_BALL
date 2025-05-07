@@ -21,6 +21,7 @@
 #define LCD_HEIGHT 320
 
 #define RECTS_AMOUNT 10
+#define CIRCLE_RADIUS 10
 
 extern volatile Rectangle rects[RECTS_AMOUNT];
 extern volatile Circle player;

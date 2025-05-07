@@ -28,7 +28,7 @@ ssize_t _write(int file, const char *data, size_t len) {
 void gyro_init(void) {
 	uint8_t configData[2] = { CTRL_REG1, 0x0F }; // PD=1, Zen=1, Yen=1, Xen=1;
 
-	if (!spi5_acquire())
+	while (!spi5_acquire())
 		return;
 
 	GYRO_CS_LOW();
@@ -46,7 +46,7 @@ void gyro_init(void) {
 void gyro_set_sensitivity() {
 	uint8_t configData[2] = { CTRL_REG4, SENSITIVITY };
 
-	if (!spi5_acquire())
+	while (!spi5_acquire())
 		return;
 
 	GYRO_CS_LOW();
