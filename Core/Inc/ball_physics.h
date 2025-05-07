@@ -12,4 +12,8 @@ extern int16_t max_speed;
 void ball_set_speed(int16_t *speed_x,int16_t *speed_y);
 void ball_move(int16_t *speed_x,int16_t *speed_y);
 
+
+bool check_collision(Rectangle rec,int next_x, int next_y);
+bool check_inside_screen(int next_x, int next_y);
+
 #endif /* INC_BALL_PHYSICS_H_ */

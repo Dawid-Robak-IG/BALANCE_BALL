@@ -1,0 +1,5 @@
+../Core/Src/spi.c:28:6:spi5_acquire	2
+../Core/Src/spi.c:36:6:spi5_release	1
+../Core/Src/spi.c:48:6:MX_SPI5_Init	2
+../Core/Src/spi.c:80:6:HAL_SPI_MspInit	3
+../Core/Src/spi.c:130:6:HAL_SPI_MspDeInit	2

@@ -45,5 +45,3 @@ void lcd_set_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t co
 bool lcd_is_busy(void);
 void go_for_next_chunk(void);
 
-bool check_collision(Rectangle rec,int next_x, int next_y);
-bool check_inside_screen(int next_x, int next_y);

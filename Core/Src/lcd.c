@@ -279,18 +279,3 @@ void go_for_next_chunk(void){
 }
 
 
-bool check_collision(Rectangle rec, int next_x, int next_y){
-	 if ((next_x < rec.x + rec.width + player.r) &&
-		              (next_x > rec.x - player.r) &&
-		              (next_y > rec.y - player.r) &&
-		              (next_y < rec.y + rec.height + player.r))return true;
-	return false;
-}
-
-
-bool check_inside_screen(int next_x, int next_y){
-	  if (next_x - player.r <= 0 || next_x + player.r >= LCD_WIDTH || next_y - player.r <= 0 || next_y + player.r >= LCD_HEIGHT) {
-		   return false;
-		}
-	return true;
-}
