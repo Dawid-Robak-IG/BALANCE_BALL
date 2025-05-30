@@ -4,6 +4,7 @@
 #include <stdbool.h>
 //#include <math.h>
 #include "figures.h"
+#include "font.h"
 
 
 #define BLACK     0x0000
@@ -22,9 +23,12 @@
 
 #define RECTS_AMOUNT 10
 #define CIRCLE_RADIUS 10
+#define MAX_CHARS_ON_SCREEN 50
+
 
 extern volatile Rectangle rects[RECTS_AMOUNT];
 extern volatile Circle player;
+extern volatile Buf_Char text[MAX_CHARS_ON_SCREEN];
 
 
 extern volatile bool lcd_ready;
@@ -43,6 +47,7 @@ void lcd_set_circle(int x,int y,int radius,uint16_t color);
 void lcd_set_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t color);
 
 void lcd_change_ball_color(uint16_t speed_x, uint16_t speed_y);
+void lcd_set_char(uint16_t idx, int x, int y, char znak, uint16_t color);
 //==========================================
 
 

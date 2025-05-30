@@ -1,5 +1,5 @@
 Core/Src/lcd.o: ../Core/Src/lcd.c ../Core/Inc/lcd.h ../Core/Inc/figures.h \
- ../Core/Inc/spi.h ../Core/Inc/main.h \
+ ../Core/Inc/font.h ../Core/Inc/spi.h ../Core/Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Core/Inc/stm32f4xx_hal_conf.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
@@ -43,6 +43,7 @@ Core/Src/lcd.o: ../Core/Src/lcd.c ../Core/Inc/lcd.h ../Core/Inc/figures.h \
  ../Core/Inc/usart.h
 ../Core/Inc/lcd.h:
 ../Core/Inc/figures.h:
+../Core/Inc/font.h:
 ../Core/Inc/spi.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:

@@ -16,3 +16,12 @@ typedef struct{
 	int r;
 	uint16_t color;
 } Circle;
+
+typedef struct{
+	int x;
+	int y;
+	char c;
+	uint16_t color;
+} Buf_Char;
+
+

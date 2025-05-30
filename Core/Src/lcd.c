@@ -35,6 +35,8 @@ volatile bool lcd_ready=true;
 
 volatile Rectangle rects[RECTS_AMOUNT];
 volatile Circle player;
+volatile Buf_Char text[MAX_CHARS_ON_SCREEN];
+
 
 
 
@@ -113,6 +115,13 @@ void lcd_set_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t co
 	rects[idx].height = height;
 	rects[idx].color = color;
 }
+void lcd_set_char(uint16_t idx, int x, int y, char znak, uint16_t color){
+	text[idx].x = x;
+	text[idx].y = y;
+	text[idx].c = znak;
+	text[idx].color = color;
+}
+
 void lcd_set_circle(int x,int y,int radius,uint16_t color){
 	player.x = x;
 	player.y = y;
@@ -241,6 +250,31 @@ static void lcd_put_circ_to_buffer(Circle circle){
 		}
 	}
 }
+const uint16_t* get_char_bitmap(char c) {
+    if (c >= '0' && c <= '9') {
+        return font_10x14[c - '0'];  // indeksy 0-9
+    }
+    else if (c >= 'A' && c <= 'Z') {
+        return font_10x14[10 + (c - 'A')];  // indeksy 10-35 (po cyfrach)
+    }
+    return NULL;  // znak nieobsługiwany
+}
+void lcd_put_char_to_buffer(Buf_Char ch) {
+    const uint16_t* bitmap = get_char_bitmap(ch.c);
+    if (!bitmap) return;
+
+    for (int row = 0; row < 14; row++) {
+        for (int col = 0; col < 10; col++) {
+            if (bitmap[row] & (1 << (9 - col))) {
+                int px = ch.x + col;
+                int py = ch.y + row;
+                if (px >= 0 && px < LCD_WIDTH && py >= 0 && py < LCD_HEIGHT) {
+                    screen_buffer[py * LCD_WIDTH + px] = __REV16(ch.color);
+                }
+            }
+        }
+    }
+}
 static void put_figures_to_buffer(void){
 	for(int i=0; i<LCD_WIDTH*LCD_HEIGHT;i++) {
 		screen_buffer[i] = __REV16(BLUE);
@@ -248,6 +282,9 @@ static void put_figures_to_buffer(void){
 
 	for(int i=0;i<RECTS_AMOUNT;i++){
 		lcd_put_rect_to_buffer(rects[i]);
+	}
+	for(int i=0;i<MAX_CHARS_ON_SCREEN;i++){
+		lcd_put_char_to_buffer(text[i]);
 	}
 	lcd_put_circ_to_buffer(player);
 }

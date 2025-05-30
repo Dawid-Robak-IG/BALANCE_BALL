@@ -71,6 +71,7 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+int screen_id=0;
 
 void click_led() {
 	static uint8_t clicked;
@@ -80,6 +81,10 @@ void click_led() {
 			time = HAL_GetTick();
 			if (clicked == 0) {
 				clicked = 1;
+				if(screen_id==1){
+					screen_id++;
+					HAL_TIM_Base_Start_IT(&htim7);
+				}
 				HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
 				time = HAL_GetTick();
 			}
@@ -94,11 +99,27 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi) {
 		go_for_next_chunk();
 	}
 }
+void lcd_print_all_chars(void) {
+    const char znaczki[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const int znak_szer = 16;
+    const int znak_wys = 16;
+
+    int i = 0;
+
+    for (int y = 0; y < LCD_HEIGHT && i < 36; y += znak_wys) {
+        for (int x = znak_szer; x + znak_szer <= LCD_WIDTH && i < 36; x += znak_szer) {
+            lcd_set_char(i, x, y, znaczki[i], GREEN);
+            i++;
+        }
+    }
+}
 void set_new_figs(void) {
 	lcd_set_rectangle(0, 100, 0, 50, 100, RED);
 	lcd_set_rectangle(1, 150, 190, 60, 15, YELLOW);
 	lcd_set_rectangle(2, 0, 250, 200, 30, RED);
 	lcd_set_circle(LCD_WIDTH/2, LCD_HEIGHT/2, 10, GREEN);
+
+	lcd_print_all_chars();
 }
 
 
@@ -162,15 +183,16 @@ int main(void)
 	HAL_Delay(2000);
 	gyro_calculate_offset(&gyro_offset_s);
 	HAL_Delay(1000);
-	HAL_TIM_Base_Start_IT(&htim7);
+	screen_id = 1;
+//	HAL_TIM_Base_Start_IT(&htim7);
 
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
-  MX_FREERTOS_Init();
+  //MX_FREERTOS_Init();
 
   /* Start scheduler */
-  osKernelStart();
+  //osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
 
@@ -184,7 +206,7 @@ int main(void)
 //		ball_set_speed();
 
 //		lcd_update();
-		HAL_Delay(100);
+		click_led();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
