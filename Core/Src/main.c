@@ -153,20 +153,24 @@ int main(void)
 	set_new_figs();
 	lcd_update();
 
+	while(!spi5_acquire()){}
+	spi5_release();
 
-	HAL_Delay(300); //żeby LCD skończył swoje przesyłanie
+
+	HAL_Delay(500); //żeby LCD skończył swoje przesyłanie
 	gyro_init();
+	HAL_Delay(2000);
 	gyro_calculate_offset(&gyro_offset_s);
-	HAL_Delay(300);
+	HAL_Delay(1000);
 	HAL_TIM_Base_Start_IT(&htim7);
 
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
- // MX_FREERTOS_Init();
+  MX_FREERTOS_Init();
 
   /* Start scheduler */
- // osKernelStart();
+  osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
 
@@ -180,7 +184,7 @@ int main(void)
 //		ball_set_speed();
 
 //		lcd_update();
-	//	HAL_Delay(30);
+		HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

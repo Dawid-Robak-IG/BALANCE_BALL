@@ -25,6 +25,7 @@
 
 
 volatile static uint16_t screen_buffer[LCD_WIDTH * LCD_HEIGHT];
+//volatile static uint16_t circle_buffer[4 * CIRCLE_RADIUS * CIRCLE_RADIUS];
 static uint16_t current_chunk = 0;
 static uint16_t how_many_chunks = 4;
 static uint16_t chunk_size;
@@ -133,6 +134,19 @@ static void send_circle(uint16_t circle_color){
 	}
 	spi5_release();
 }
+//static void send_circle_buffer(void){
+//	current_chunk = how_many_chunks;
+//	lcd_set_window(player.x - player.r, player.y-player.r, 2*player.r,2*player.r);
+//	lcd_cmd(MEM_WRITE);
+//	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, GPIO_PIN_SET);
+//	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, GPIO_PIN_RESET);
+//
+//	if (!spi5_acquire()) return;
+//
+//	HAL_SPI_Transmit_DMA(&hspi5, (uint8_t*)circle_buffer, 2*4*player.r*player.r);
+//
+//	spi5_release();
+//}
 static void clear_former_horizontal(Circle former){
 	int min_y,max_y;
 
@@ -188,6 +202,8 @@ void lcd_delta_circle(int dx,int dy,int dradius){
 	player.y += dy;
 	player.r += dradius;
 
+
+
 	if(player.r<0 || player.r > LCD_WIDTH/6 || player.r>LCD_HEIGHT/6)player.r = 5;
 
 	if (player.x-player.r < 0) player.x = player.r;
@@ -200,6 +216,7 @@ void lcd_update_circle(int dx,int dy,int dradius){
 	lcd_delta_circle(dx, dy, dradius);
 	if(dx!=0 ||  dy!=0)clear_former_circle(former);
 	send_circle(player.color);
+	//	send_circle_buffer();
 }
 void lcd_put_pixel(int x, int y, uint16_t color){
 	screen_buffer[ (LCD_WIDTH*y) + x] = __REV16(color); //to make send most significant bit first
@@ -234,6 +251,7 @@ static void put_figures_to_buffer(void){
 	}
 	lcd_put_circ_to_buffer(player);
 }
+
 void lcd_update(void){
 	put_figures_to_buffer();
 
@@ -277,20 +295,22 @@ void go_for_next_chunk(void){
 		lcd_transfer_done();
 	}
 }
+void lcd_change_ball_color(uint16_t speed_x, uint16_t speed_y){
+	uint32_t speed_sq = speed_x * speed_x + speed_y * speed_y;
+	uint32_t sq_max_speed = max_speed*max_speed;
+	if (speed_sq > sq_max_speed) {
+		speed_sq = sq_max_speed;
+	}
+	float ratio = (float)speed_sq/sq_max_speed;
 
+	// Kolor startowy: zielony (R=0, G=63, B=0)
+	// Kolor docelowy: biały (R=31, G=63, B=31)
 
-bool check_collision(Rectangle rec, int next_x, int next_y){
-	 if ((next_x < rec.x + rec.width + player.r) &&
-		              (next_x > rec.x - player.r) &&
-		              (next_y > rec.y - player.r) &&
-		              (next_y < rec.y + rec.height + player.r))return true;
-	return false;
+	uint8_t red   = (uint8_t)(31 * ratio);
+	uint8_t green = 63;
+	uint8_t blue  = (uint8_t)(31 * ratio);
+
+	uint16_t color = (red << 11) | (green << 5) | blue;
+	player.color = color;
 }
 
-
-bool check_inside_screen(int next_x, int next_y){
-	  if (next_x - player.r <= 0 || next_x + player.r >= LCD_WIDTH || next_y - player.r <= 0 || next_y + player.r >= LCD_HEIGHT) {
-		   return false;
-		}
-	return true;
-}

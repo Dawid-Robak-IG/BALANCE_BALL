@@ -28,6 +28,8 @@ extern volatile Circle player;
 
 
 extern volatile bool lcd_ready;
+extern int16_t max_speed;
+
 
 //==========================================
 // LCD INTERFACE
@@ -39,6 +41,8 @@ void lcd_update_circle(int dx,int dy,int dradius);
 void lcd_set_circle(int x,int y,int radius,uint16_t color);
 //void lcd_delta_circle(int dx,int dy,int dradius);
 void lcd_set_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t color);
+
+void lcd_change_ball_color(uint16_t speed_x, uint16_t speed_y);
 //==========================================
 
 

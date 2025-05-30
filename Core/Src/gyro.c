@@ -98,7 +98,7 @@ void gyro_ReadWhoAmI(void) {
 
 	spi5_release();
 
-	if ((rx != 0xD3) || (rx != 0xD3)) {
+	if ((rx != 0xD3) && (rx != 0xD4)) {
 		printf("WHO_AM_I error: 0x%02X (expected 0xD3 or 0xD4)\r\n", rx);
 	}
 	else {
@@ -111,7 +111,7 @@ void gyro_get_data(Gyro_Int_Data *gyro_data) {
 	uint8_t tx = OUT_X_L | 0x80 | 0x40;
 	uint8_t rx[6];
 	if (gyro_is_data_ready()==false) {
-		printf("Data not ready\r\n");
+//		printf("Data not ready\r\n");
 		return;
 	}
 
@@ -149,8 +149,8 @@ bool gyro_is_data_ready(void) {
 }
 
 void gyro_calculate_offset(Gyro_Int_Data *offset) {
-	int32_t sum_x = 0, sum_y = 0, sum_z = 0;
-	const uint16_t samples = 500;
+	int64_t sum_x = 0, sum_y = 0, sum_z = 0;
+	const uint16_t samples = 1000;
 	Gyro_Int_Data raw_data;
 
 	printf("Starting calibration...\r\n");

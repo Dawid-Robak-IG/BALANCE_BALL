@@ -21,12 +21,15 @@
 #define LCD_HEIGHT 320
 
 #define RECTS_AMOUNT 10
+#define CIRCLE_RADIUS 10
 
 extern volatile Rectangle rects[RECTS_AMOUNT];
 extern volatile Circle player;
 
 
 extern volatile bool lcd_ready;
+extern int16_t max_speed;
+
 
 //==========================================
 // LCD INTERFACE
@@ -38,6 +41,8 @@ void lcd_update_circle(int dx,int dy,int dradius);
 void lcd_set_circle(int x,int y,int radius,uint16_t color);
 //void lcd_delta_circle(int dx,int dy,int dradius);
 void lcd_set_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t color);
+
+void lcd_change_ball_color(uint16_t speed_x, uint16_t speed_y);
 //==========================================
 
 
@@ -45,5 +50,3 @@ void lcd_set_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t co
 bool lcd_is_busy(void);
 void go_for_next_chunk(void);
 
-bool check_collision(Rectangle rec,int next_x, int next_y);
-bool check_inside_screen(int next_x, int next_y);

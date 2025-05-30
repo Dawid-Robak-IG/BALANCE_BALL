@@ -202,6 +202,8 @@ void lcd_delta_circle(int dx,int dy,int dradius){
 	player.y += dy;
 	player.r += dradius;
 
+
+
 	if(player.r<0 || player.r > LCD_WIDTH/6 || player.r>LCD_HEIGHT/6)player.r = 5;
 
 	if (player.x-player.r < 0) player.x = player.r;
@@ -249,23 +251,9 @@ static void put_figures_to_buffer(void){
 	}
 	lcd_put_circ_to_buffer(player);
 }
-//static void fill_circle_buffer(void){
-//	uint16_t dist_x,dist_y;
-//	for(int y=0;y<player.r*2;y++){
-//		for(int x=0;x<player.r*2;x++){
-//			dist_x = (x-player.r)*(x-player.r);
-//			dist_y = (y-player.r)*(y-player.r);
-//			if( dist_x+dist_y <= (player.r*player.r) ){
-//				circle_buffer[(2*player.r*y) + x] = __REV16(player.color);
-//			} else{
-//				circle_buffer[(2*player.r*y) + x] = __REV16(BACKGROUND);
-//			}
-//		}
-//	}
-//}
+
 void lcd_update(void){
 	put_figures_to_buffer();
-//	fill_circle_buffer();
 
 	current_chunk = 0;
 	lcd_set_window(0, current_chunk*y_per_chunk, LCD_WIDTH, LCD_HEIGHT/how_many_chunks);
@@ -307,5 +295,22 @@ void go_for_next_chunk(void){
 		lcd_transfer_done();
 	}
 }
+void lcd_change_ball_color(uint16_t speed_x, uint16_t speed_y){
+	uint32_t speed_sq = speed_x * speed_x + speed_y * speed_y;
+	uint32_t sq_max_speed = max_speed*max_speed;
+	if (speed_sq > sq_max_speed) {
+		speed_sq = sq_max_speed;
+	}
+	float ratio = (float)speed_sq/sq_max_speed;
 
+	// Kolor startowy: zielony (R=0, G=63, B=0)
+	// Kolor docelowy: biały (R=31, G=63, B=31)
+
+	uint8_t red   = (uint8_t)(31 * ratio);
+	uint8_t green = 63;
+	uint8_t blue  = (uint8_t)(31 * ratio);
+
+	uint16_t color = (red << 11) | (green << 5) | blue;
+	player.color = color;
+}
 

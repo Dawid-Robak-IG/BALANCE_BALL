@@ -33,6 +33,7 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 #include "lcd.h"
 #include "gyro.h"
+#include "ball_physics.h"
 #include <stdio.h>
 #include <stdlib.h>
 /* USER CODE END Includes */
@@ -40,7 +41,7 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
 extern Gyro_Int_Data gyro_raw_data_s;
-extern Gyro_Float_Data gyro_scaled_data_s;
+extern Gyro_Int_Data gyro_scaled_data_s;
 extern Gyro_Int_Data gyro_offset_s;
 /* USER CODE END ET */
 
@@ -63,7 +64,7 @@ void Error_Handler(void);
 
 /* Private defines -----------------------------------------------------------*/
 #define TIM7_PERIOD 1999
-#define TIM7_PRESCALER 719
+#define TIM7_PRESCALER 7199
 #define PC14_OSC32_IN_Pin GPIO_PIN_14
 #define PC14_OSC32_IN_GPIO_Port GPIOC
 #define PC15_OSC32_OUT_Pin GPIO_PIN_15
