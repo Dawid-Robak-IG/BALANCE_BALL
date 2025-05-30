@@ -23,7 +23,7 @@
 
 #define RECTS_AMOUNT 10
 #define CIRCLE_RADIUS 10
-#define MAX_CHARS_ON_SCREEN 50
+#define MAX_CHARS_ON_SCREEN 70
 
 
 extern volatile Rectangle rects[RECTS_AMOUNT];

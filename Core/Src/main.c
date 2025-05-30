@@ -140,6 +140,8 @@ void set_up_menu(){
 	const char str12[5] = "PRESS";
 	const char str2[11] = "BLUE BUTTON";
 	const char str3[8] = "TO START";
+	const char str4[8] = "WAIT FOR";
+	const char str5[9] = "GREEN LED";
 
 	int x;
 	int j=1;
@@ -166,9 +168,23 @@ void set_up_menu(){
 		x = znak_szer * (i+1);
 		lcd_set_char(i+last_idx, x, j*znak_szer, str3[i], GREEN);
 	}
+	j+=3;
+	last_idx+=8;
+	for(int i=0;i<8;i++){
+		x = znak_szer * (i+1);
+		lcd_set_char(i+last_idx, x, j*znak_szer, str4[i], GREEN);
+	}
 	j++;
+	last_idx+=8;
+	for(int i=0;i<9;i++){
+		x = znak_szer * (i+1);
+		lcd_set_char(i+last_idx, x, j*znak_szer, str5[i], GREEN);
+	}
 }
 void setup_first_lvl(){
+	lcd_clear_text();
+	lcd_clear_screen();
+
 	lcd_set_rectangle(0, 100, 0, 50, 100, RED);
 	lcd_set_rectangle(1, 150, 190, 60, 15, YELLOW);
 	lcd_set_rectangle(2, 0, 250, 200, 30, RED);
@@ -181,6 +197,7 @@ void setup_end(){
 	HAL_TIM_Base_Stop_IT(&htim10);
 	clear_rectangles();
 	lcd_clear_text();
+	lcd_clear_screen();
 	const char str1[7] = "THE END";
 	int x;
 	int j=1;
@@ -261,6 +278,7 @@ int main(void)
   MX_TIM7_Init();
   MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
+  	HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin,GPIO_PIN_RESET);
 	lcd_init();
 	lcd_clear_screen();
 	set_screen();
@@ -289,13 +307,13 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
+	uint8_t green_led_flag=1;
 	while (1) {
 
-//		gyro_get_filtered_data(&gyro_raw_data_s);
-//		gyro_compensate_and_scale(&gyro_raw_data_s, &gyro_offset_s, &gyro_scaled_data_s);
-//		ball_set_speed();
-
-//		lcd_update();
+		if(green_led_flag==1){
+			green_led_flag = 0;
+			HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin,GPIO_PIN_SET);
+		}
 		click_led();
 		if(change_screen_flag==1){
 			change_screen_flag=0;
