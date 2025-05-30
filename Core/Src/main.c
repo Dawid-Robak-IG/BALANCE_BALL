@@ -217,6 +217,47 @@ void setup_end(){
 		x = znak_szer * (i + 1);
 		lcd_set_char(i+last_idx, x, j * znak_szer, time_str[i], GREEN);
 	}
+	j+=2;
+	last_idx+=32;
+
+	updateHighScores(second_pasted);
+	HighScores scores = readHighScores();
+	if(scores.best_times[2]!=0xFFFFFFFF){
+		char score_str[32];
+		snprintf(score_str, sizeof(score_str), "3. %ld", scores.best_times[2]);
+		printf("Best third time: %s\r\n", score_str);
+
+		for(int i = 0; score_str[i] != '\0'; i++){
+			x = znak_szer * (i + 1);
+			lcd_set_char(i+last_idx, x, j * znak_szer, score_str[i], CYAN);
+		}
+		j++;
+		last_idx+=32;
+	}
+	if(scores.best_times[1]!=0xFFFFFFFF){
+		char score_str[32];
+		snprintf(score_str, sizeof(score_str), "2. %ld", scores.best_times[1]);
+		printf("Best third time: %s\r\n", score_str);
+
+		for(int i = 0; score_str[i] != '\0'; i++){
+			x = znak_szer * (i + 1);
+			lcd_set_char(i+last_idx, x, j * znak_szer, score_str[i], MAGENTA);
+		}
+		j++;
+		last_idx+=32;
+	}
+	if(scores.best_times[0]!=0xFFFFFFFF){
+		char score_str[32];
+		snprintf(score_str, sizeof(score_str), "1. %ld", scores.best_times[0]);
+		printf("Best third time: %s\r\n", score_str);
+
+		for(int i = 0; score_str[i] != '\0'; i++){
+			x = znak_szer * (i + 1);
+			lcd_set_char(i+last_idx, x, j * znak_szer, score_str[i], RED);
+		}
+		j++;
+		last_idx+=32;
+	}
 
 }
 void set_screen(){
@@ -289,9 +330,12 @@ int main(void)
 
 	HAL_Delay(500); //żeby LCD skończył swoje przesyłanie
 	gyro_init();
+
+	initializeFlashIfNeeded();
 	HAL_Delay(2000);
 	gyro_calculate_offset(&gyro_offset_s);
 	HAL_Delay(1000);
+
 //	HAL_TIM_Base_Start_IT(&htim7);
 
   /* USER CODE END 2 */

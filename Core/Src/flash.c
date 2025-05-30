@@ -51,3 +51,20 @@ void updateHighScores(uint32_t newTime) {
         }
     }
 }
+void resetFlash(void) {
+    HighScores scores = {
+		.magic = 0xDEADBEEF,
+		.best_times = {0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF}
+	};
+    saveHighScores(&scores);
+}
+bool isFlashUninitialized(void) {
+    HighScores *scores = (HighScores*)FLASH_USER_START_ADDR;
+    return scores->magic != FLASH_MAGIC;
+}
+
+void initializeFlashIfNeeded(void) {
+    if (isFlashUninitialized()) {
+        resetFlash();
+    }
+}

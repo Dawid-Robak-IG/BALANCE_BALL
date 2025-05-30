@@ -256,6 +256,8 @@ const uint16_t* get_char_bitmap(char c) {
     }
     else if (c >= 'A' && c <= 'Z') {
         return font_10x14[10 + (c - 'A')];  // indeksy 10-35 (po cyfrach)
+    } else if (c=='.'){
+    	return font_10x14[10 + ('Z' - 'A') + 1];
     }
     return NULL;  // znak nieobsługiwany
 }

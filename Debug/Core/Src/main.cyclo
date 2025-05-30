@@ -4,9 +4,9 @@
 ../Core/Src/main.c:128:6:set_new_figs	1
 ../Core/Src/main.c:137:6:set_up_menu	7
 ../Core/Src/main.c:184:6:setup_first_lvl	1
-../Core/Src/main.c:196:6:setup_end	3
-../Core/Src/main.c:222:6:set_screen	6
-../Core/Src/main.c:244:5:main	4
-../Core/Src/main.c:335:6:SystemClock_Config	3
-../Core/Src/main.c:388:6:HAL_TIM_PeriodElapsedCallback	4
-../Core/Src/main.c:414:6:Error_Handler	1
+../Core/Src/main.c:196:6:setup_end	9
+../Core/Src/main.c:263:6:set_screen	6
+../Core/Src/main.c:285:5:main	4
+../Core/Src/main.c:379:6:SystemClock_Config	3
+../Core/Src/main.c:432:6:HAL_TIM_PeriodElapsedCallback	4
+../Core/Src/main.c:458:6:Error_Handler	1
