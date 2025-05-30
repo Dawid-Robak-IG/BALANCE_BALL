@@ -40,7 +40,7 @@ extern int16_t max_speed;
 //==========================================
 void lcd_init(void); // to configure lcd
 void lcd_put_pixel(int x, int y, uint16_t color); // to put indyvidual pixel on screen
-void lcd_update(void); // to update state of lcd screen
+void lcd_update(uint8_t only_text); // to update state of lcd screen
 void lcd_update_circle(int dx,int dy,int dradius);
 void lcd_set_circle(int x,int y,int radius,uint16_t color);
 //void lcd_delta_circle(int dx,int dy,int dradius);
@@ -48,6 +48,10 @@ void lcd_set_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t co
 
 void lcd_change_ball_color(uint16_t speed_x, uint16_t speed_y);
 void lcd_set_char(uint16_t idx, int x, int y, char znak, uint16_t color);
+
+void lcd_clear_screen();
+void lcd_clear_text();
+void clear_rectangles();
 //==========================================
 
 

@@ -275,6 +275,11 @@ void lcd_put_char_to_buffer(Buf_Char ch) {
         }
     }
 }
+void put_text_to_buff(){
+	for(int i=0;i<MAX_CHARS_ON_SCREEN;i++){
+		lcd_put_char_to_buffer(text[i]);
+	}
+}
 static void put_figures_to_buffer(void){
 	for(int i=0; i<LCD_WIDTH*LCD_HEIGHT;i++) {
 		screen_buffer[i] = __REV16(BLUE);
@@ -283,14 +288,13 @@ static void put_figures_to_buffer(void){
 	for(int i=0;i<RECTS_AMOUNT;i++){
 		lcd_put_rect_to_buffer(rects[i]);
 	}
-	for(int i=0;i<MAX_CHARS_ON_SCREEN;i++){
-		lcd_put_char_to_buffer(text[i]);
-	}
+	put_text_to_buff();
 	lcd_put_circ_to_buffer(player);
 }
 
-void lcd_update(void){
-	put_figures_to_buffer();
+void lcd_update(uint8_t only_text){
+	if(only_text==0)put_figures_to_buffer();
+	else put_text_to_buff();
 
 	current_chunk = 0;
 	lcd_set_window(0, current_chunk*y_per_chunk, LCD_WIDTH, LCD_HEIGHT/how_many_chunks);
@@ -350,4 +354,24 @@ void lcd_change_ball_color(uint16_t speed_x, uint16_t speed_y){
 	uint16_t color = (red << 11) | (green << 5) | blue;
 	player.color = color;
 }
-
+void lcd_clear_screen(){
+	for (int y = 0; y < LCD_HEIGHT; y++) {
+		for (int x = 0; x < LCD_WIDTH; x++) {
+			lcd_put_pixel(x, y, BLUE);
+		}
+	}
+}
+void lcd_clear_text(){
+	for(int i=0;i<MAX_CHARS_ON_SCREEN;i++){
+		text[i].c='\n';
+	}
+}
+void clear_rectangles(){
+	for (int i = 0; i < RECTS_AMOUNT; i++) {
+	    rects[i].x = 0;
+	    rects[i].y = 0;
+	    rects[i].width = 0;
+	    rects[i].height = 0;
+	    rects[i].color = 0;
+	}
+}

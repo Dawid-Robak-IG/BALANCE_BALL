@@ -150,7 +150,7 @@ bool gyro_is_data_ready(void) {
 
 void gyro_calculate_offset(Gyro_Int_Data *offset) {
 	int64_t sum_x = 0, sum_y = 0, sum_z = 0;
-	const uint16_t samples = 1000;
+	const uint16_t samples = 500;
 	Gyro_Int_Data raw_data;
 
 	printf("Starting calibration...\r\n");
@@ -194,6 +194,6 @@ void gyro_compensate_and_scale(Gyro_Int_Data *gyro_data, Gyro_Int_Data *offset, 
 	gyro_calibrated_dat->y = gyro_data->y * scale;
 	gyro_calibrated_dat->z = gyro_data->z * scale;
 
-	printf("X: %d dps, Y: %d dps, Z: %d dps\r\n", gyro_calibrated_dat->x, gyro_calibrated_dat->y, gyro_calibrated_dat->z);
+	//printf("X: %d dps, Y: %d dps, Z: %d dps\r\n", gyro_calibrated_dat->x, gyro_calibrated_dat->y, gyro_calibrated_dat->z);
 }
 

@@ -60,6 +60,9 @@ Gyro_Int_Data gyro_offset_s = { 0 };
 int16_t speed_x = 0;
 int16_t speed_y = 0;
 
+const int znak_szer = 16;
+const int znak_wys = 16;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -72,6 +75,9 @@ void MX_FREERTOS_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 int screen_id=0;
+uint8_t change_screen_flag=0;
+
+void set_screen();
 
 void click_led() {
 	static uint8_t clicked;
@@ -81,9 +87,12 @@ void click_led() {
 			time = HAL_GetTick();
 			if (clicked == 0) {
 				clicked = 1;
-				if(screen_id==1){
-					screen_id++;
-					HAL_TIM_Base_Start_IT(&htim7);
+				if(screen_id==0){
+					screen_id=1;
+					change_screen_flag =1;
+				} else if(screen_id==1){
+					screen_id=2;
+					change_screen_flag =1;
 				}
 				HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
 				time = HAL_GetTick();
@@ -101,8 +110,6 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi) {
 }
 void lcd_print_all_chars(void) {
     const char znaczki[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const int znak_szer = 16;
-    const int znak_wys = 16;
 
     int i = 0;
 
@@ -114,6 +121,7 @@ void lcd_print_all_chars(void) {
     }
 }
 void set_new_figs(void) {
+	lcd_clear_text();
 	lcd_set_rectangle(0, 100, 0, 50, 100, RED);
 	lcd_set_rectangle(1, 150, 190, 60, 15, YELLOW);
 	lcd_set_rectangle(2, 0, 250, 200, 30, RED);
@@ -121,7 +129,74 @@ void set_new_figs(void) {
 
 	lcd_print_all_chars();
 }
+void set_up_menu(){
+	lcd_clear_text();
+	const char str1[12] = "BALANCE BALL";
+	const char str12[5] = "PRESS";
+	const char str2[11] = "BLUE BUTTON";
+	const char str3[8] = "TO START";
 
+	int x;
+	int j=1;
+	int last_idx;
+	for(int i=0;i<12;i++){
+		x = znak_szer * (i+1);
+		lcd_set_char(i, x, j*znak_szer, str1[i], GREEN);
+	}
+	j++;
+	last_idx = 11;
+	for(int i=0;i<5;i++){
+		x = znak_szer * (i+1);
+		lcd_set_char(i+last_idx, x, j*znak_szer, str12[i], GREEN);
+	}
+	j++;
+	last_idx += 5;
+	for(int i=0;i<11;i++){
+		x = znak_szer * (i+1);
+		lcd_set_char(i+last_idx, x, j*znak_szer, str2[i], GREEN);
+	}
+	j++;
+	last_idx+=11;
+	for(int i=0;i<8;i++){
+		x = znak_szer * (i+1);
+		lcd_set_char(i+last_idx, x, j*znak_szer, str3[i], GREEN);
+	}
+	j++;
+}
+void setup_first_lvl(){
+	lcd_set_rectangle(0, 100, 0, 50, 100, RED);
+	lcd_set_rectangle(1, 150, 190, 60, 15, YELLOW);
+	lcd_set_rectangle(2, 0, 250, 200, 30, RED);
+	lcd_set_circle(LCD_WIDTH/2, LCD_HEIGHT/2, 10, GREEN);
+
+	lcd_print_all_chars();
+}
+void setup_end(){
+	clear_rectangles();
+	lcd_clear_text();
+	const char str1[7] = "THE END";
+	int x;
+	int j=1;
+	for(int i=0;i<7;i++){
+		x = znak_szer * (i+1);
+		lcd_set_char(i, x, j*znak_szer, str1[i], GREEN);
+	}
+}
+void set_screen(){
+	HAL_TIM_Base_Stop_IT(&htim7);
+	lcd_clear_screen();
+	if(screen_id==0){
+		set_up_menu();
+	} else if (screen_id == 1){
+		setup_first_lvl();
+	} else if(screen_id == 2){
+		setup_end();
+	}
+	if(screen_id!=0 && screen_id!=2)lcd_update(0);
+	else lcd_update(1);
+	HAL_Delay(500);
+	HAL_TIM_Base_Start_IT(&htim7);
+}
 
 /* USER CODE END 0 */
 
@@ -166,13 +241,8 @@ int main(void)
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 	lcd_init();
-	for (int y = 0; y < LCD_HEIGHT; y++) {
-		for (int x = 0; x < LCD_WIDTH; x++) {
-			lcd_put_pixel(x, y, BLUE);
-		}
-	}
-	set_new_figs();
-	lcd_update();
+	lcd_clear_screen();
+	set_screen();
 
 	while(!spi5_acquire()){}
 	spi5_release();
@@ -183,7 +253,6 @@ int main(void)
 	HAL_Delay(2000);
 	gyro_calculate_offset(&gyro_offset_s);
 	HAL_Delay(1000);
-	screen_id = 1;
 //	HAL_TIM_Base_Start_IT(&htim7);
 
   /* USER CODE END 2 */
@@ -207,6 +276,11 @@ int main(void)
 
 //		lcd_update();
 		click_led();
+		if(change_screen_flag==1){
+			change_screen_flag=0;
+			printf("Changing scene\r\n");
+			set_screen();
+		}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
