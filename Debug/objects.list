@@ -2,6 +2,7 @@
 "./Core/Src/crc.o"
 "./Core/Src/dma.o"
 "./Core/Src/dma2d.o"
+"./Core/Src/flash.o"
 "./Core/Src/fmc.o"
 "./Core/Src/freertos.o"
 "./Core/Src/gpio.o"

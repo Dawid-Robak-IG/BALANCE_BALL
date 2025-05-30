@@ -65,6 +65,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define TIM7_PERIOD 1999
 #define TIM7_PRESCALER 719
+#define TIM10_PRESCALER 7199
+#define TIM10_PERIOD 9999
 #define PC14_OSC32_IN_Pin GPIO_PIN_14
 #define PC14_OSC32_IN_GPIO_Port GPIOC
 #define PC15_OSC32_OUT_Pin GPIO_PIN_15

@@ -33,6 +33,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "lcd.h"
+#include "gyro.h"
+#include "flash.h"
+#include "figures.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -62,6 +66,7 @@ int16_t speed_y = 0;
 
 const int znak_szer = 16;
 const int znak_wys = 16;
+volatile uint32_t second_pasted = 0;
 
 /* USER CODE END PV */
 
@@ -170,17 +175,32 @@ void setup_first_lvl(){
 	lcd_set_circle(LCD_WIDTH/2, LCD_HEIGHT/2, 10, GREEN);
 
 	lcd_print_all_chars();
+	HAL_TIM_Base_Start_IT(&htim10);
 }
 void setup_end(){
+	HAL_TIM_Base_Stop_IT(&htim10);
 	clear_rectangles();
 	lcd_clear_text();
 	const char str1[7] = "THE END";
 	int x;
 	int j=1;
+	int last_idx;
 	for(int i=0;i<7;i++){
 		x = znak_szer * (i+1);
 		lcd_set_char(i, x, j*znak_szer, str1[i], GREEN);
 	}
+	j++;
+	last_idx = 7;
+
+	char time_str[32];
+	snprintf(time_str, sizeof(time_str), "TIME %ld SEC", second_pasted);
+	printf("%s\r\n", time_str);
+
+	for(int i = 0; time_str[i] != '\0'; i++){
+		x = znak_szer * (i + 1);
+		lcd_set_char(i+last_idx, x, j * znak_szer, time_str[i], GREEN);
+	}
+
 }
 void set_screen(){
 	HAL_TIM_Base_Stop_IT(&htim7);
@@ -239,6 +259,7 @@ int main(void)
   MX_TIM1_Init();
   MX_USART1_UART_Init();
   MX_TIM7_Init();
+  MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
 	lcd_init();
 	lcd_clear_screen();
@@ -258,10 +279,10 @@ int main(void)
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
-  //MX_FREERTOS_Init();
+//  MX_FREERTOS_Init();
 
   /* Start scheduler */
-  //osKernelStart();
+//  osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
 
@@ -362,6 +383,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 	 ball_set_speed(&speed_x,&speed_y);
 	 ball_move(&speed_x,&speed_y);
+  }else if(htim->Instance == TIM10){
+	  second_pasted++;
   }
   /* USER CODE END Callback 1 */
 }

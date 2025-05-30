@@ -1,6 +1,6 @@
 #include "ball_physics.h"
 
-int16_t max_speed = 20;
+int16_t max_speed = 10;
 
 
 void ball_set_speed(int16_t *speed_x,int16_t *speed_y){
