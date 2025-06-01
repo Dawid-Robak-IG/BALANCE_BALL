@@ -7,8 +7,8 @@ void ball_set_speed(int16_t *speed_x,int16_t *speed_y){
 	int dx = (int)(gyro_scaled_data_s.y) ;
 	int dy = (int)(gyro_scaled_data_s.x);
 
-	if (abs(dx) < 2) dx=0;
-	if (abs(dy) < 2) dy=0;
+	if (abs(dx) < 1) dx=0;
+	if (abs(dy) < 1) dy=0;
 
 	if(dx==0){
 		*speed_x*=0.99;
@@ -63,7 +63,6 @@ bool check_collision(Rectangle rec, int next_x, int next_y){
 
 	if(screen_id==1){
 		check_difficulty_selection(rec,next_x,next_y);
-		return check_difficulty_selection(rec,next_x,next_y);
 	}
 
 

@@ -42,7 +42,6 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
-
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -71,8 +70,6 @@ const int znak_szer = 16;
 const int znak_wys = 16;
 volatile uint32_t second_pasted = 0;
 
-
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -86,6 +83,7 @@ void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN 0 */
 int screen_id = 0;
 uint8_t change_screen_flag = 0;
+uint8_t green_led_flag = 0;
 
 void set_screen();
 
@@ -107,8 +105,8 @@ void click_led() {
 					screen_id = 3;
 					change_screen_flag = 1;
 				} else if (screen_id == 3) {
-									screen_id = 4;
-									change_screen_flag = 1;
+					screen_id = 4;
+					change_screen_flag = 1;
 				} else if (screen_id == 5) {
 					screen_id = 1;
 					change_screen_flag = 1;
@@ -154,73 +152,70 @@ void set_up_calibration() {
 	lcd_clear_text();
 	const char str1[12] = "BALANCE BALL";
 
-		const char str_gyroscope[12] ="GYROSCOPE";
-		const char str_calibration[14] ="CALIBRATION...";
+	const char str_gyroscope[12] = "GYROSCOPE";
+	const char str_calibration[14] = "CALIBRATION...";
 
-		const char str4[8] = "WAIT FOR";
-		const char str5[9] = "GREEN LED";
+	const char str4[8] = "WAIT FOR";
+	const char str5[9] = "GREEN LED";
 
+	const char str12[5] = "PRESS";
+	const char str2[11] = "BLUE BUTTON";
+	const char str3[8] = "TO START";
 
-		const char str12[5] = "PRESS";
-		const char str2[11] = "BLUE BUTTON";
-		const char str3[8] = "TO START";
+	int x;
+	int j = 1;
+	int last_idx;
 
+	for (int i = 0; i < 12; i++) {
+		x = znak_szer * (i + 1);
+		lcd_set_char(i, x, j * znak_szer, str1[i], GREEN);
+	}
+	j += 2;
+	last_idx = 12;
+	for (int i = 0; i < 12; i++) {
+		x = znak_szer * (i + 1);
+		lcd_set_char(i + last_idx, x, j * znak_szer, str_gyroscope[i], GREEN);
+	}
+	j++;
+	last_idx += 12;
+	for (int i = 0; i < 14; i++) {
+		x = znak_szer * (i + 1);
+		lcd_set_char(i + last_idx, x, j * znak_szer, str_calibration[i], GREEN);
+	}
+	j += 3;
+	last_idx += 14;
+	for (int i = 0; i < 8; i++) {
+		x = znak_szer * (i + 1);
+		lcd_set_char(i + last_idx, x, j * znak_szer, str4[i], GREEN);
+	}
+	j++;
+	last_idx += 8;
 
-		int x;
-		int j = 1;
-		int last_idx;
+	for (int i = 0; i < 9; i++) {
+		x = znak_szer * (i + 1);
+		lcd_set_char(i + last_idx, x, j * znak_szer, str5[i], GREEN);
+	}
 
-		for (int i = 0; i < 12; i++) {
-			x = znak_szer * (i + 1);
-			lcd_set_char(i, x, j * znak_szer, str1[i], GREEN);
-		}
-		j+=2;
-		last_idx = 12;
-		for (int i = 0; i < 12; i++) {
-			x = znak_szer * (i + 1);
-			lcd_set_char(i + last_idx, x, j * znak_szer, str_gyroscope[i], GREEN);
-		}
-		j++;
-		last_idx += 12;
-		for (int i = 0; i < 14; i++) {
-			x = znak_szer * (i + 1);
-			lcd_set_char(i + last_idx, x, j * znak_szer, str_calibration[i], GREEN);
-		}
-		j+=3;
-		last_idx += 14;
-		for (int i = 0; i < 8; i++) {
-			x = znak_szer * (i + 1);
-			lcd_set_char(i + last_idx, x, j * znak_szer, str4[i], GREEN);
-		}
-		j ++;
-		last_idx += 8;
+	j += 3;
+	last_idx += 9;
+	for (int i = 0; i < 5; i++) {
+		x = znak_szer * (i + 1);
+		lcd_set_char(i + last_idx, x, j * znak_szer, str12[i], GREEN);
+	}
 
-		for (int i = 0; i <9; i++) {
-			x = znak_szer * (i + 1);
-			lcd_set_char(i + last_idx, x, j * znak_szer, str5[i], GREEN);
-		}
+	j++;
+	last_idx += 5;
+	for (int i = 0; i < 11; i++) {
+		x = znak_szer * (i + 1);
+		lcd_set_char(i + last_idx, x, j * znak_szer, str2[i], GREEN);
+	}
 
-		j+=3;
-		last_idx += 9;
-		for (int i = 0; i < 5; i++) {
-			x = znak_szer * (i + 1);
-			lcd_set_char(i + last_idx, x, j * znak_szer, str12[i], GREEN);
-		}
-
-		j++;
-		last_idx += 5;
-		for (int i = 0; i < 11; i++) {
-			x = znak_szer * (i + 1);
-			lcd_set_char(i + last_idx, x, j * znak_szer, str2[i], GREEN);
-		}
-
-
-		j++;
-		last_idx += 11;
-		for (int i = 0; i < 8; i++) {
-			x = znak_szer * (i + 1);
-			lcd_set_char(i + last_idx, x, j * znak_szer, str3[i], GREEN);
-		}
+	j++;
+	last_idx += 11;
+	for (int i = 0; i < 8; i++) {
+		x = znak_szer * (i + 1);
+		lcd_set_char(i + last_idx, x, j * znak_szer, str3[i], GREEN);
+	}
 
 }
 void set_up_menu() {
@@ -229,7 +224,20 @@ void set_up_menu() {
 	lcd_set_rectangle(0, 0, 132, 150, 32, ORANGE);
 	lcd_set_rectangle(1, 90, 195, 150, 32, PURPLE);
 	lcd_set_rectangle(2, 0, 260, 150, 32, DARK_RED);
-    lcd_set_circle(100, 120, 8, GREEN);
+
+
+		lcd_set_rectangle(3, 15, 14, 190, 15, BLUE);
+		lcd_set_rectangle(4, 15, 62, 90, 15, BLUE);
+		lcd_set_rectangle(5, 15, 76, 155, 15, BLUE);
+
+		lcd_set_rectangle(6, 15, 92, 80, 15, BLUE);
+		lcd_set_rectangle(7, 0, 0, 0, 0, 0);
+		lcd_set_rectangle(8, 0, 0, 0, 0, 0);
+		lcd_set_rectangle(9, 0, 0, 0, 0, 0);
+
+
+
+	lcd_set_circle(100, 120, 8, GREEN);
 
 	const char str1[12] = "BALANCE BALL";
 	const char str12[6] = "SELECT";
@@ -265,25 +273,25 @@ void set_up_menu() {
 		lcd_set_char(i + last_idx, x, j * znak_szer, str3[i], GREEN);
 	}
 
-	j+=3;
+	j += 3;
 	last_idx += 5;
 	for (int i = 0; i < 4; i++) {
 		x = znak_szer * (i + 1);
 		lcd_set_char(i + last_idx, x, j * znak_szer, str4[i], BLACK);
 	}
 
-	j+=4;
+	j += 4;
 	last_idx += 4;
 	for (int i = 0; i < 6; i++) {
 		x = znak_szer * (i + 9);
-		lcd_set_char(i + last_idx, x, j * znak_szer, str5[i],  BLACK);
+		lcd_set_char(i + last_idx, x, j * znak_szer, str5[i], BLACK);
 	}
 
-	j+=4;
+	j += 4;
 	last_idx += 6;
 	for (int i = 0; i < 4; i++) {
 		x = znak_szer * (i + 1);
-		lcd_set_char(i + last_idx, x, j * znak_szer, str6[i],  BLACK);
+		lcd_set_char(i + last_idx, x, j * znak_szer, str6[i], BLACK);
 	}
 }
 
@@ -293,9 +301,8 @@ void setup_first_lvl() {
 	lcd_clear_text();
 	lcd_clear_screen();
 
-
 	lcd_set_rectangle(0, 60, 0, 40, 100, RED);
-	lcd_set_rectangle(1, 60, 100, 40, 80,YELLOW);
+	lcd_set_rectangle(1, 60, 100, 40, 80, YELLOW);
 	lcd_set_rectangle(2, 40, 220, 40, 100, YELLOW);
 
 	lcd_set_rectangle(3, 100, 140, 60, 40, YELLOW);
@@ -304,17 +311,15 @@ void setup_first_lvl() {
 
 	lcd_set_rectangle(6, 200, 100, 40, 220, YELLOW);
 
-	if(DifficultyLevel>=1){
+	if (DifficultyLevel >= 2) {
 		lcd_set_rectangle(2, 40, 220, 40, 100, RED);
 	}
 
-
-	if(DifficultyLevel==2){
+	if (DifficultyLevel == 3) {
 		lcd_set_rectangle(4, 140, 60, 100, 40, RED);
 
 		lcd_set_rectangle(6, 200, 100, 40, 220, RED);
 	}
-
 
 	lcd_set_circle(10, 10, 8, GREEN);
 
@@ -339,19 +344,15 @@ void setup_second_lvl() {
 	lcd_set_rectangle(8, 50, 220, 130, 20, YELLOW);
 	lcd_set_rectangle(9, 80, 280, 160, 40, YELLOW);
 
-
-
-	if(DifficultyLevel>=1){
-		lcd_set_rectangle(2, 30, 100, 20, 190,RED);
+	if (DifficultyLevel >= 2) {
+		lcd_set_rectangle(2, 30, 100, 20, 190, RED);
 		lcd_set_rectangle(7, 130, 100, 20, 80, RED);
 	}
 
-
-	if(DifficultyLevel==2){
-		lcd_set_rectangle(4, 140, 60, 100, 40, RED);
-		lcd_set_rectangle(6, 200, 100, 40, 220, RED);
+	if (DifficultyLevel == 3) {
+		lcd_set_rectangle(4, 50, 140, 50, 20, RED);
+		lcd_set_rectangle(6, 80, 180, 70, 20, RED);
 	}
-
 
 	lcd_set_circle(10, 10, 8, GREEN);
 
@@ -362,16 +363,27 @@ void setup_third_lvl() {
 	lcd_clear_text();
 	lcd_clear_screen();
 
-	lcd_set_rectangle(0, 100, 0, 50, 100, BLACK);
-	lcd_set_rectangle(1, 150, 190, 60, 15, GREEN);
-	lcd_set_rectangle(2, 0, 250, 200, 30, RED);
-	lcd_set_rectangle(3, 0, 0, 0, 0, 0);
-	lcd_set_rectangle(4, 0, 0, 0, 0, 0);
-	lcd_set_rectangle(5, 0, 0, 0, 0, 0);
+	lcd_set_rectangle(0, 40, 0, 20, 80, YELLOW);
+	lcd_set_rectangle(1, 0, 100, 170, 20, YELLOW);
+	lcd_set_rectangle(2, 120, 40, 20, 90, YELLOW);
+	lcd_set_rectangle(3, 200, 80, 30, 140, YELLOW);
+	lcd_set_rectangle(4, 80, 170, 160, 20, YELLOW);
+	lcd_set_rectangle(5,  90, 150, 40, 90, YELLOW);
 
-	lcd_set_rectangle(6, 0, 0, 0, 0, 0);
-	lcd_set_rectangle(7, 0, 0, 0, 0, 0);
-	lcd_set_rectangle(8, 0, 0, 0, 0, 0);
+	lcd_set_rectangle(6, 30, 200, 20, 100, YELLOW);
+	lcd_set_rectangle(7, 0, 260, 220, 20, YELLOW);
+	lcd_set_rectangle(8, 150, 220, 20, 80, YELLOW);
+	lcd_set_rectangle(9, 10, 300, 10, 10, GREEN);
+
+	if (DifficultyLevel >= 2) {
+		lcd_set_rectangle(2, 120, 40, 20, 90, RED);
+		lcd_set_rectangle(4, 80, 170, 160, 20, RED);
+	}
+
+		if (DifficultyLevel == 3) {
+			lcd_set_rectangle(1, 0, 100, 170, 20, YELLOW);
+			lcd_set_rectangle(6, 30, 200, 30, 100, RED);
+		}
 
 
 	lcd_set_circle(10, 10, 8, GREEN);
@@ -380,9 +392,22 @@ void setup_third_lvl() {
 
 void setup_end() {
 	HAL_TIM_Base_Stop_IT(&htim10);
-	clear_rectangles();
+	//clear_rectangles();
 	lcd_clear_text();
 	lcd_clear_screen();
+
+	lcd_set_rectangle(0, 14, 14, 120, 16, BLUE);
+	lcd_set_rectangle(1, 14, 30, 180, 15,BLUE);
+	lcd_set_rectangle(2, 14, 60, 60, 50,BLUE);
+	lcd_set_rectangle(3, 0, 0, 0, 0, 0);
+	lcd_set_rectangle(4, 0, 0, 0, 0, 0);
+	lcd_set_rectangle(5, 0, 0, 0, 0, 0);
+
+	lcd_set_rectangle(6, 0, 0, 0, 0, 0);
+	lcd_set_rectangle(7, 0, 0, 0, 0, 0);
+	lcd_set_rectangle(8, 0, 0, 0, 0, 0);
+	lcd_set_rectangle(9, 0, 0, 0, 0, 0);
+
 	const char str1[7] = "THE END";
 	int x;
 	int j = 1;
@@ -464,7 +489,7 @@ void set_screen() {
 	} else if (screen_id == 5) {
 		setup_end();
 	}
-	if (screen_id != 0 && screen_id != 5)
+	if (screen_id != 0)
 		lcd_update(0);
 	else
 		lcd_update(1);
@@ -545,7 +570,7 @@ int main(void) {
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 
-	uint8_t green_led_flag = 1;
+	green_led_flag = 1;
 	while (1) {
 
 		if (green_led_flag == 1) {
