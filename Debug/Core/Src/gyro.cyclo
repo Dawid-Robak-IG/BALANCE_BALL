@@ -1,9 +1,0 @@
-../Core/Src/gyro.c:23:9:_write	1
-../Core/Src/gyro.c:28:6:gyro_init	2
-../Core/Src/gyro.c:46:6:gyro_set_sensitivity	2
-../Core/Src/gyro.c:59:6:gyro_get_filtered_data	2
-../Core/Src/gyro.c:87:6:gyro_ReadWhoAmI	4
-../Core/Src/gyro.c:109:6:gyro_get_data	3
-../Core/Src/gyro.c:134:6:gyro_is_data_ready	2
-../Core/Src/gyro.c:151:6:gyro_calculate_offset	3
-../Core/Src/gyro.c:177:6:gyro_compensate_and_scale	1

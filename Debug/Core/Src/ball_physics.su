@@ -1,4 +1,0 @@
-../Core/Src/ball_physics.c:6:6:ball_set_speed	32	static
-../Core/Src/ball_physics.c:38:6:ball_move	48	static
-../Core/Src/ball_physics.c:62:6:check_collision	8	static
-../Core/Src/ball_physics.c:71:6:check_inside_screen	16	static

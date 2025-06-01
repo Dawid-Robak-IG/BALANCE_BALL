@@ -1,6 +1,0 @@
-../Core/Src/flash.c:9:12:readHighScores	1
-../Core/Src/flash.c:15:6:saveHighScores	3
-../Core/Src/flash.c:40:6:updateHighScores	5
-../Core/Src/flash.c:54:6:resetFlash	1
-../Core/Src/flash.c:61:6:isFlashUninitialized	1
-../Core/Src/flash.c:66:6:initializeFlashIfNeeded	2
