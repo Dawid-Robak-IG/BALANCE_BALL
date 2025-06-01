@@ -16,6 +16,9 @@
 #define CYAN      0x07ff
 #define WHITE     0xffff
 
+#define ORANGE    0xfea0
+#define PURPLE    0x9a0f
+#define DARK_RED  0xc800
 #define BACKGROUND 0x001f
 
 #define LCD_WIDTH 240

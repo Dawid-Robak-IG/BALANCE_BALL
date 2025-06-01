@@ -60,10 +60,33 @@ void ball_move(int16_t *speed_x,int16_t *speed_y){
 
 
 bool check_collision(Rectangle rec, int next_x, int next_y){
+
+	if ((next_x < rec.x + rec.width + player.r) &&
+				              (next_x > rec.x - player.r) &&
+				              (next_y > rec.y - player.r) &&
+				              (next_y < rec.y + rec.height + player.r)&& (rec.color == GREEN)){
+				printf("Zielony\r\n");
+				screen_id++;
+				change_screen_flag=1;
+				return true;
+		 }
+
+	if ((next_x < rec.x + rec.width + player.r) &&
+					              (next_x > rec.x - player.r) &&
+					              (next_y > rec.y - player.r) &&
+					              (next_y < rec.y + rec.height + player.r)&& (rec.color == RED)){
+					printf("Czerwony\r\n");
+
+					lcd_set_circle(10,10, 8, GREEN);
+					return true;
+			 }
+
 	 if ((next_x < rec.x + rec.width + player.r) &&
 		              (next_x > rec.x - player.r) &&
 		              (next_y > rec.y - player.r) &&
 		              (next_y < rec.y + rec.height + player.r))return true;
+
+
 	return false;
 }
 
