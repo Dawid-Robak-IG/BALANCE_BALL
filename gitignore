@@ -58,4 +58,8 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+
+# Ignore backup files
+*.bak
+
 # End of https://www.toptal.com/developers/gitignore/api/c
