@@ -61,6 +61,12 @@ void ball_move(int16_t *speed_x,int16_t *speed_y){
 
 bool check_collision(Rectangle rec, int next_x, int next_y){
 
+	if(screen_id==1){
+		check_difficulty_selection(rec,next_x,next_y);
+		return check_difficulty_selection(rec,next_x,next_y);
+	}
+
+
 	if ((next_x < rec.x + rec.width + player.r) &&
 				              (next_x > rec.x - player.r) &&
 				              (next_y > rec.y - player.r) &&
@@ -88,6 +94,39 @@ bool check_collision(Rectangle rec, int next_x, int next_y){
 
 
 	return false;
+}
+
+
+bool check_difficulty_selection(Rectangle rec, int next_x, int next_y){
+
+	if ((next_x < rec.x + rec.width + player.r) &&
+				              (next_x > rec.x - player.r) &&
+				              (next_y > rec.y - player.r) &&
+				              (next_y < rec.y + rec.height + player.r)&& (rec.color == ORANGE)){
+			DifficultyLevel=1;
+				return true;
+		 }
+
+	if ((next_x < rec.x + rec.width + player.r) &&
+					              (next_x > rec.x - player.r) &&
+					              (next_y > rec.y - player.r) &&
+					              (next_y < rec.y + rec.height + player.r)&& (rec.color == PURPLE)){
+
+					DifficultyLevel=2;
+					return true;
+			 }
+	if ((next_x < rec.x + rec.width + player.r) &&
+						              (next_x > rec.x - player.r) &&
+						              (next_y > rec.y - player.r) &&
+						              (next_y < rec.y + rec.height + player.r)&& (rec.color == DARK_RED)){
+
+						DifficultyLevel=3;
+
+						return true;
+	}
+
+	return false;
+
 }
 
 
