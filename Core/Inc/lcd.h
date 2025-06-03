@@ -57,6 +57,8 @@ void lcd_clear_screen();
 void lcd_clear_text();
 void clear_rectangles();
 void lcd_delta_circle(int dx,int dy,int dradius);
+
+void lcd_clear_circle();
 //==========================================
 
 

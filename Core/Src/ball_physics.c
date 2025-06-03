@@ -82,6 +82,7 @@ bool check_collision(Rectangle rec, int next_x, int next_y){
 					              (next_y < rec.y + rec.height + player.r)&& (rec.color == RED)){
 					printf("Czerwony\r\n");
 
+					lcd_clear_circle();
 					lcd_set_circle(10,10, 8, GREEN);
 					return true;
 			 }

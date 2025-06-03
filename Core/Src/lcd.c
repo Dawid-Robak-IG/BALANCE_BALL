@@ -377,3 +377,16 @@ void clear_rectangles(){
 	    rects[i].color = 0;
 	}
 }
+void lcd_clear_circle() {
+    lcd_set_window(player.x - player.r, player.y - player.r, 2 * player.r, 2 * player.r);
+    lcd_cmd(MEM_WRITE);
+
+    if (!spi5_acquire()) return;
+
+    for (int y = player.y - player.r; y < player.y + player.r; y++) {
+        for (int x = player.x - player.r; x < player.x + player.r; x++) {
+                lcd_data16(BACKGROUND);
+        }
+    }
+    spi5_release();
+}

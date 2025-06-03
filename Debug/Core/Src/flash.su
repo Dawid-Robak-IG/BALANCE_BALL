@@ -1,0 +1,6 @@
+../Core/Src/flash.c:9:12:readHighScores	32	static
+../Core/Src/flash.c:15:6:saveHighScores	56	static
+../Core/Src/flash.c:40:6:updateHighScores	40	static
+../Core/Src/flash.c:54:6:resetFlash	32	static
+../Core/Src/flash.c:61:6:isFlashUninitialized	16	static
+../Core/Src/flash.c:66:6:initializeFlashIfNeeded	8	static
