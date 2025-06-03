@@ -13,14 +13,14 @@ void ball_set_speed(int16_t *speed_x,int16_t *speed_y){
 	if(dx==0){
 		*speed_x*=0.99;
 	}else{
-		*speed_x -= 0.15*dx;
+		*speed_x -= 0.1*dx;
 	}
 
 	if(dy==0){
 			*speed_y*=0.99;
 		}
 	else{
-		*speed_y -=  0.15*dy;
+		*speed_y -=  0.1*dy;
 	}
 
 

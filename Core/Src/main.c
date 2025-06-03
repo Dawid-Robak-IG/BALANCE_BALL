@@ -246,8 +246,8 @@ void set_up_menu() {
 	lcd_clear_text();
 
 	lcd_set_rectangle(0, 0, 132, 150, 32, ORANGE);
-	lcd_set_rectangle(1, 90, 195, 150, 32, PURPLE);
-	lcd_set_rectangle(2, 0, 260, 150, 32, DARK_RED);
+	lcd_set_rectangle(1, 90, 215, 150, 32, PURPLE);
+	lcd_set_rectangle(2, 0, 292, 150, 32, DARK_RED);
 
 	lcd_set_rectangle(3, 15, 14, 190, 15, BLUE);
 	lcd_set_rectangle(4, 15, 62, 90, 15, BLUE);
@@ -306,7 +306,7 @@ void set_up_menu() {
 			lcd_set_char(i + last_idx, x, j * znak_szer, str4[i], BLACK);
 	}
 
-	j += 4;
+	j += 5;
 	last_idx += 4;
 	for (int i = 0; i < 6; i++) {
 		x = znak_szer * (i + 9);
@@ -316,7 +316,7 @@ void set_up_menu() {
 			lcd_set_char(i + last_idx, x, j * znak_szer, str5[i], BLACK);
 	}
 
-	j += 4;
+	j += 5;
 	last_idx += 6;
 	for (int i = 0; i < 4; i++) {
 		x = znak_szer * (i + 1);
@@ -365,27 +365,27 @@ void setup_second_lvl() {
 	lcd_clear_text();
 	lcd_clear_screen();
 
-	lcd_set_rectangle(0, 0, 30, 180, 20, YELLOW);
-	lcd_set_rectangle(1, 180, 30, 20, 210, YELLOW);
-	lcd_set_rectangle(2, 30, 100, 20, 190, YELLOW);
+	lcd_set_rectangle(0, 0, 30, 180, 15, YELLOW);
+	lcd_set_rectangle(1, 180, 30, 15, 210, YELLOW);
+	lcd_set_rectangle(2, 30, 100, 15, 190, YELLOW);
 
-	lcd_set_rectangle(3, 50, 100, 80, 20, YELLOW);
-	lcd_set_rectangle(4, 50, 140, 50, 20, YELLOW);
-	lcd_set_rectangle(5, 50, 120, 30, 20, GREEN);
+	lcd_set_rectangle(3, 45, 100, 85, 15, YELLOW);
+	lcd_set_rectangle(4, 45, 140, 50, 15, YELLOW);
+	lcd_set_rectangle(5, 50, 120, 15, 15, GREEN);
 
-	lcd_set_rectangle(6, 80, 180, 70, 20, YELLOW);
-	lcd_set_rectangle(7, 130, 100, 20, 80, YELLOW);
-	lcd_set_rectangle(8, 50, 220, 130, 20, YELLOW);
-	lcd_set_rectangle(9, 80, 280, 140, 40, YELLOW);
+	lcd_set_rectangle(6, 80, 180, 65, 15, YELLOW);
+	lcd_set_rectangle(7, 130, 100, 15, 80, YELLOW);
+	lcd_set_rectangle(8, 45, 230, 150, 15, YELLOW);
+	lcd_set_rectangle(9, 100, 280, 140, 15, YELLOW);
 
 	if (DifficultyLevel >= 2) {
-		lcd_set_rectangle(2, 30, 100, 20, 190, RED);
-		lcd_set_rectangle(7, 130, 100, 20, 80, RED);
+		lcd_set_rectangle(2, 30, 100, 15, 190, RED);
+		lcd_set_rectangle(7, 130, 100, 15, 80, RED);
 	}
 
 	if (DifficultyLevel == 3) {
-		lcd_set_rectangle(4, 50, 140, 50, 20, RED);
-		lcd_set_rectangle(6, 80, 180, 70, 20, RED);
+		lcd_set_rectangle(4, 45, 140, 50, 15, RED);
+		lcd_set_rectangle(6, 80, 180, 65, 15, RED);
 	}
 
 	lcd_set_circle(10, 10, 8, GREEN);
@@ -397,15 +397,15 @@ void setup_third_lvl() {
 	lcd_clear_text();
 	lcd_clear_screen();
 
-	lcd_set_rectangle(0, 40, 0, 20, 80, YELLOW);
+	lcd_set_rectangle(0, 40, 0, 20, 70, YELLOW);
 	lcd_set_rectangle(1, 0, 100, 170, 20, YELLOW);
 	lcd_set_rectangle(2, 120, 40, 20, 90, YELLOW);
 	lcd_set_rectangle(3, 200, 80, 30, 140, YELLOW);
 	lcd_set_rectangle(4, 80, 170, 160, 20, YELLOW);
-	lcd_set_rectangle(5, 90, 150, 40, 90, YELLOW);
+	lcd_set_rectangle(5, 90, 160, 30, 70, YELLOW);
 
 	lcd_set_rectangle(6, 30, 200, 20, 100, YELLOW);
-	lcd_set_rectangle(7, 0, 260, 220, 20, YELLOW);
+	lcd_set_rectangle(7, 0, 260, 200, 20, YELLOW);
 	lcd_set_rectangle(8, 150, 220, 20, 80, YELLOW);
 	lcd_set_rectangle(9, 10, 300, 10, 10, GREEN);
 
@@ -416,7 +416,7 @@ void setup_third_lvl() {
 
 	if (DifficultyLevel == 3) {
 		lcd_set_rectangle(1, 0, 100, 170, 20, RED);
-		lcd_set_rectangle(6, 30, 200, 30, 100, RED);
+		lcd_set_rectangle(6, 30, 200, 20, 100, RED);
 	}
 
 	lcd_set_circle(10, 10, 8, GREEN);

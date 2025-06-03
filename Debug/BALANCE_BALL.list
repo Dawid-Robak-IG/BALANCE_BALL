@@ -1349,7 +1349,7 @@ void ball_set_speed(int16_t *speed_x,int16_t *speed_y){
  8001000:	801a      	strh	r2, [r3, #0]
  8001002:	e01f      	b.n	8001044 <ball_set_speed+0xac>
 	}else{
-		*speed_x -= 0.15*dx;
+		*speed_x -= 0.1*dx;
  8001004:	687b      	ldr	r3, [r7, #4]
  8001006:	f9b3 3000 	ldrsh.w	r3, [r3]
  800100a:	4618      	mov	r0, r3
@@ -1401,7 +1401,7 @@ void ball_set_speed(int16_t *speed_x,int16_t *speed_y){
  8001074:	e01f      	b.n	80010b6 <ball_set_speed+0x11e>
 		}
 	else{
-		*speed_y -=  0.15*dy;
+		*speed_y -=  0.1*dy;
  8001076:	683b      	ldr	r3, [r7, #0]
  8001078:	f9b3 3000 	ldrsh.w	r3, [r3]
  800107c:	4618      	mov	r0, r3
@@ -1513,8 +1513,8 @@ void ball_set_speed(int16_t *speed_x,int16_t *speed_y){
  8001164:	f3af 8000 	nop.w
  8001168:	7ae147ae 	.word	0x7ae147ae
  800116c:	3fefae14 	.word	0x3fefae14
- 8001170:	33333333 	.word	0x33333333
- 8001174:	3fc33333 	.word	0x3fc33333
+ 8001170:	9999999a 	.word	0x9999999a
+ 8001174:	3fb99999 	.word	0x3fb99999
  8001178:	20026390 	.word	0x20026390
  800117c:	20000000 	.word	0x20000000
 
@@ -7668,23 +7668,23 @@ void set_up_menu() {
  8003b48:	2100      	movs	r1, #0
  8003b4a:	2000      	movs	r0, #0
  8003b4c:	f7fe fd8a 	bl	8002664 <lcd_set_rectangle>
-	lcd_set_rectangle(1, 90, 195, 150, 32, PURPLE);
+	lcd_set_rectangle(1, 90, 215, 150, 32, PURPLE);
  8003b50:	f649 230f 	movw	r3, #39439	@ 0x9a0f
  8003b54:	9301      	str	r3, [sp, #4]
  8003b56:	2320      	movs	r3, #32
  8003b58:	9300      	str	r3, [sp, #0]
  8003b5a:	2396      	movs	r3, #150	@ 0x96
- 8003b5c:	22c3      	movs	r2, #195	@ 0xc3
+ 8003b5c:	22d7      	movs	r2, #215	@ 0xd7
  8003b5e:	215a      	movs	r1, #90	@ 0x5a
  8003b60:	2001      	movs	r0, #1
  8003b62:	f7fe fd7f 	bl	8002664 <lcd_set_rectangle>
-	lcd_set_rectangle(2, 0, 260, 150, 32, DARK_RED);
+	lcd_set_rectangle(2, 0, 292, 150, 32, DARK_RED);
  8003b66:	f44f 4348 	mov.w	r3, #51200	@ 0xc800
  8003b6a:	9301      	str	r3, [sp, #4]
  8003b6c:	2320      	movs	r3, #32
  8003b6e:	9300      	str	r3, [sp, #0]
  8003b70:	2396      	movs	r3, #150	@ 0x96
- 8003b72:	f44f 7282 	mov.w	r2, #260	@ 0x104
+ 8003b72:	f44f 7292 	mov.w	r2, #292	@ 0x124
  8003b76:	2100      	movs	r1, #0
  8003b78:	2002      	movs	r0, #2
  8003b7a:	f7fe fd73 	bl	8002664 <lcd_set_rectangle>
@@ -8054,9 +8054,9 @@ void set_up_menu() {
  8003e34:	ddc3      	ble.n	8003dbe <set_up_menu+0x28e>
 	}
 
-	j += 4;
+	j += 5;
  8003e36:	6c3b      	ldr	r3, [r7, #64]	@ 0x40
- 8003e38:	3304      	adds	r3, #4
+ 8003e38:	3305      	adds	r3, #5
  8003e3a:	643b      	str	r3, [r7, #64]	@ 0x40
 	last_idx += 4;
  8003e3c:	6bfb      	ldr	r3, [r7, #60]	@ 0x3c
@@ -8134,9 +8134,9 @@ void set_up_menu() {
  8003eda:	ddb5      	ble.n	8003e48 <set_up_menu+0x318>
 	}
 
-	j += 4;
+	j += 5;
  8003edc:	6c3b      	ldr	r3, [r7, #64]	@ 0x40
- 8003ede:	3304      	adds	r3, #4
+ 8003ede:	3305      	adds	r3, #5
  8003ee0:	643b      	str	r3, [r7, #64]	@ 0x40
 	last_idx += 6;
  8003ee2:	6bfb      	ldr	r3, [r7, #60]	@ 0x3c
@@ -8380,106 +8380,106 @@ void setup_second_lvl() {
 	lcd_clear_screen();
  80040a2:	f7ff f82b 	bl	80030fc <lcd_clear_screen>
 
-	lcd_set_rectangle(0, 0, 30, 180, 20, YELLOW);
+	lcd_set_rectangle(0, 0, 30, 180, 15, YELLOW);
  80040a6:	f64f 73e0 	movw	r3, #65504	@ 0xffe0
  80040aa:	9301      	str	r3, [sp, #4]
- 80040ac:	2314      	movs	r3, #20
+ 80040ac:	230f      	movs	r3, #15
  80040ae:	9300      	str	r3, [sp, #0]
  80040b0:	23b4      	movs	r3, #180	@ 0xb4
  80040b2:	221e      	movs	r2, #30
  80040b4:	2100      	movs	r1, #0
  80040b6:	2000      	movs	r0, #0
  80040b8:	f7fe fad4 	bl	8002664 <lcd_set_rectangle>
-	lcd_set_rectangle(1, 180, 30, 20, 210, YELLOW);
+	lcd_set_rectangle(1, 180, 30, 15, 210, YELLOW);
  80040bc:	f64f 73e0 	movw	r3, #65504	@ 0xffe0
  80040c0:	9301      	str	r3, [sp, #4]
  80040c2:	23d2      	movs	r3, #210	@ 0xd2
  80040c4:	9300      	str	r3, [sp, #0]
- 80040c6:	2314      	movs	r3, #20
+ 80040c6:	230f      	movs	r3, #15
  80040c8:	221e      	movs	r2, #30
  80040ca:	21b4      	movs	r1, #180	@ 0xb4
  80040cc:	2001      	movs	r0, #1
  80040ce:	f7fe fac9 	bl	8002664 <lcd_set_rectangle>
-	lcd_set_rectangle(2, 30, 100, 20, 190, YELLOW);
+	lcd_set_rectangle(2, 30, 100, 15, 190, YELLOW);
  80040d2:	f64f 73e0 	movw	r3, #65504	@ 0xffe0
  80040d6:	9301      	str	r3, [sp, #4]
  80040d8:	23be      	movs	r3, #190	@ 0xbe
  80040da:	9300      	str	r3, [sp, #0]
- 80040dc:	2314      	movs	r3, #20
+ 80040dc:	230f      	movs	r3, #15
  80040de:	2264      	movs	r2, #100	@ 0x64
  80040e0:	211e      	movs	r1, #30
  80040e2:	2002      	movs	r0, #2
  80040e4:	f7fe fabe 	bl	8002664 <lcd_set_rectangle>
 
-	lcd_set_rectangle(3, 50, 100, 80, 20, YELLOW);
+	lcd_set_rectangle(3, 45, 100, 85, 15, YELLOW);
  80040e8:	f64f 73e0 	movw	r3, #65504	@ 0xffe0
  80040ec:	9301      	str	r3, [sp, #4]
- 80040ee:	2314      	movs	r3, #20
+ 80040ee:	230f      	movs	r3, #15
  80040f0:	9300      	str	r3, [sp, #0]
- 80040f2:	2350      	movs	r3, #80	@ 0x50
+ 80040f2:	2355      	movs	r3, #85	@ 0x55
  80040f4:	2264      	movs	r2, #100	@ 0x64
- 80040f6:	2132      	movs	r1, #50	@ 0x32
+ 80040f6:	212d      	movs	r1, #45	@ 0x2d
  80040f8:	2003      	movs	r0, #3
  80040fa:	f7fe fab3 	bl	8002664 <lcd_set_rectangle>
-	lcd_set_rectangle(4, 50, 140, 50, 20, YELLOW);
+	lcd_set_rectangle(4, 45, 140, 50, 15, YELLOW);
  80040fe:	f64f 73e0 	movw	r3, #65504	@ 0xffe0
  8004102:	9301      	str	r3, [sp, #4]
- 8004104:	2314      	movs	r3, #20
+ 8004104:	230f      	movs	r3, #15
  8004106:	9300      	str	r3, [sp, #0]
  8004108:	2332      	movs	r3, #50	@ 0x32
  800410a:	228c      	movs	r2, #140	@ 0x8c
- 800410c:	2132      	movs	r1, #50	@ 0x32
+ 800410c:	212d      	movs	r1, #45	@ 0x2d
  800410e:	2004      	movs	r0, #4
  8004110:	f7fe faa8 	bl	8002664 <lcd_set_rectangle>
-	lcd_set_rectangle(5, 50, 120, 30, 20, GREEN);
+	lcd_set_rectangle(5, 50, 120, 15, 15, GREEN);
  8004114:	f44f 63fc 	mov.w	r3, #2016	@ 0x7e0
  8004118:	9301      	str	r3, [sp, #4]
- 800411a:	2314      	movs	r3, #20
+ 800411a:	230f      	movs	r3, #15
  800411c:	9300      	str	r3, [sp, #0]
- 800411e:	231e      	movs	r3, #30
+ 800411e:	230f      	movs	r3, #15
  8004120:	2278      	movs	r2, #120	@ 0x78
  8004122:	2132      	movs	r1, #50	@ 0x32
  8004124:	2005      	movs	r0, #5
  8004126:	f7fe fa9d 	bl	8002664 <lcd_set_rectangle>
 
-	lcd_set_rectangle(6, 80, 180, 70, 20, YELLOW);
+	lcd_set_rectangle(6, 80, 180, 65, 15, YELLOW);
  800412a:	f64f 73e0 	movw	r3, #65504	@ 0xffe0
  800412e:	9301      	str	r3, [sp, #4]
- 8004130:	2314      	movs	r3, #20
+ 8004130:	230f      	movs	r3, #15
  8004132:	9300      	str	r3, [sp, #0]
- 8004134:	2346      	movs	r3, #70	@ 0x46
+ 8004134:	2341      	movs	r3, #65	@ 0x41
  8004136:	22b4      	movs	r2, #180	@ 0xb4
  8004138:	2150      	movs	r1, #80	@ 0x50
  800413a:	2006      	movs	r0, #6
  800413c:	f7fe fa92 	bl	8002664 <lcd_set_rectangle>
-	lcd_set_rectangle(7, 130, 100, 20, 80, YELLOW);
+	lcd_set_rectangle(7, 130, 100, 15, 80, YELLOW);
  8004140:	f64f 73e0 	movw	r3, #65504	@ 0xffe0
  8004144:	9301      	str	r3, [sp, #4]
  8004146:	2350      	movs	r3, #80	@ 0x50
  8004148:	9300      	str	r3, [sp, #0]
- 800414a:	2314      	movs	r3, #20
+ 800414a:	230f      	movs	r3, #15
  800414c:	2264      	movs	r2, #100	@ 0x64
  800414e:	2182      	movs	r1, #130	@ 0x82
  8004150:	2007      	movs	r0, #7
  8004152:	f7fe fa87 	bl	8002664 <lcd_set_rectangle>
-	lcd_set_rectangle(8, 50, 220, 130, 20, YELLOW);
+	lcd_set_rectangle(8, 45, 230, 150, 15, YELLOW);
  8004156:	f64f 73e0 	movw	r3, #65504	@ 0xffe0
  800415a:	9301      	str	r3, [sp, #4]
- 800415c:	2314      	movs	r3, #20
+ 800415c:	230f      	movs	r3, #15
  800415e:	9300      	str	r3, [sp, #0]
- 8004160:	2382      	movs	r3, #130	@ 0x82
- 8004162:	22dc      	movs	r2, #220	@ 0xdc
- 8004164:	2132      	movs	r1, #50	@ 0x32
+ 8004160:	2396      	movs	r3, #150	@ 0x96
+ 8004162:	22e6      	movs	r2, #230	@ 0xe6
+ 8004164:	212d      	movs	r1, #45	@ 0x2d
  8004166:	2008      	movs	r0, #8
  8004168:	f7fe fa7c 	bl	8002664 <lcd_set_rectangle>
-	lcd_set_rectangle(9, 80, 280, 140, 40, YELLOW);
+	lcd_set_rectangle(9, 100, 280, 140, 15, YELLOW);
  800416c:	f64f 73e0 	movw	r3, #65504	@ 0xffe0
  8004170:	9301      	str	r3, [sp, #4]
- 8004172:	2328      	movs	r3, #40	@ 0x28
+ 8004172:	230f      	movs	r3, #15
  8004174:	9300      	str	r3, [sp, #0]
  8004176:	238c      	movs	r3, #140	@ 0x8c
  8004178:	f44f 728c 	mov.w	r2, #280	@ 0x118
- 800417c:	2150      	movs	r1, #80	@ 0x50
+ 800417c:	2164      	movs	r1, #100	@ 0x64
  800417e:	2009      	movs	r0, #9
  8004180:	f7fe fa70 	bl	8002664 <lcd_set_rectangle>
 
@@ -8488,22 +8488,22 @@ void setup_second_lvl() {
  8004186:	681b      	ldr	r3, [r3, #0]
  8004188:	2b01      	cmp	r3, #1
  800418a:	dd15      	ble.n	80041b8 <setup_second_lvl+0x120>
-		lcd_set_rectangle(2, 30, 100, 20, 190, RED);
+		lcd_set_rectangle(2, 30, 100, 15, 190, RED);
  800418c:	f44f 4378 	mov.w	r3, #63488	@ 0xf800
  8004190:	9301      	str	r3, [sp, #4]
  8004192:	23be      	movs	r3, #190	@ 0xbe
  8004194:	9300      	str	r3, [sp, #0]
- 8004196:	2314      	movs	r3, #20
+ 8004196:	230f      	movs	r3, #15
  8004198:	2264      	movs	r2, #100	@ 0x64
  800419a:	211e      	movs	r1, #30
  800419c:	2002      	movs	r0, #2
  800419e:	f7fe fa61 	bl	8002664 <lcd_set_rectangle>
-		lcd_set_rectangle(7, 130, 100, 20, 80, RED);
+		lcd_set_rectangle(7, 130, 100, 15, 80, RED);
  80041a2:	f44f 4378 	mov.w	r3, #63488	@ 0xf800
  80041a6:	9301      	str	r3, [sp, #4]
  80041a8:	2350      	movs	r3, #80	@ 0x50
  80041aa:	9300      	str	r3, [sp, #0]
- 80041ac:	2314      	movs	r3, #20
+ 80041ac:	230f      	movs	r3, #15
  80041ae:	2264      	movs	r2, #100	@ 0x64
  80041b0:	2182      	movs	r1, #130	@ 0x82
  80041b2:	2007      	movs	r0, #7
@@ -8515,22 +8515,22 @@ void setup_second_lvl() {
  80041ba:	681b      	ldr	r3, [r3, #0]
  80041bc:	2b03      	cmp	r3, #3
  80041be:	d115      	bne.n	80041ec <setup_second_lvl+0x154>
-		lcd_set_rectangle(4, 50, 140, 50, 20, RED);
+		lcd_set_rectangle(4, 45, 140, 50, 15, RED);
  80041c0:	f44f 4378 	mov.w	r3, #63488	@ 0xf800
  80041c4:	9301      	str	r3, [sp, #4]
- 80041c6:	2314      	movs	r3, #20
+ 80041c6:	230f      	movs	r3, #15
  80041c8:	9300      	str	r3, [sp, #0]
  80041ca:	2332      	movs	r3, #50	@ 0x32
  80041cc:	228c      	movs	r2, #140	@ 0x8c
- 80041ce:	2132      	movs	r1, #50	@ 0x32
+ 80041ce:	212d      	movs	r1, #45	@ 0x2d
  80041d0:	2004      	movs	r0, #4
  80041d2:	f7fe fa47 	bl	8002664 <lcd_set_rectangle>
-		lcd_set_rectangle(6, 80, 180, 70, 20, RED);
+		lcd_set_rectangle(6, 80, 180, 65, 15, RED);
  80041d6:	f44f 4378 	mov.w	r3, #63488	@ 0xf800
  80041da:	9301      	str	r3, [sp, #4]
- 80041dc:	2314      	movs	r3, #20
+ 80041dc:	230f      	movs	r3, #15
  80041de:	9300      	str	r3, [sp, #0]
- 80041e0:	2346      	movs	r3, #70	@ 0x46
+ 80041e0:	2341      	movs	r3, #65	@ 0x41
  80041e2:	22b4      	movs	r2, #180	@ 0xb4
  80041e4:	2150      	movs	r1, #80	@ 0x50
  80041e6:	2006      	movs	r0, #6
@@ -8562,10 +8562,10 @@ void setup_third_lvl() {
 	lcd_clear_screen();
  800420e:	f7fe ff75 	bl	80030fc <lcd_clear_screen>
 
-	lcd_set_rectangle(0, 40, 0, 20, 80, YELLOW);
+	lcd_set_rectangle(0, 40, 0, 20, 70, YELLOW);
  8004212:	f64f 73e0 	movw	r3, #65504	@ 0xffe0
  8004216:	9301      	str	r3, [sp, #4]
- 8004218:	2350      	movs	r3, #80	@ 0x50
+ 8004218:	2346      	movs	r3, #70	@ 0x46
  800421a:	9300      	str	r3, [sp, #0]
  800421c:	2314      	movs	r3, #20
  800421e:	2200      	movs	r2, #0
@@ -8612,13 +8612,13 @@ void setup_third_lvl() {
  8004278:	2150      	movs	r1, #80	@ 0x50
  800427a:	2004      	movs	r0, #4
  800427c:	f7fe f9f2 	bl	8002664 <lcd_set_rectangle>
-	lcd_set_rectangle(5, 90, 150, 40, 90, YELLOW);
+	lcd_set_rectangle(5, 90, 160, 30, 70, YELLOW);
  8004280:	f64f 73e0 	movw	r3, #65504	@ 0xffe0
  8004284:	9301      	str	r3, [sp, #4]
- 8004286:	235a      	movs	r3, #90	@ 0x5a
+ 8004286:	2346      	movs	r3, #70	@ 0x46
  8004288:	9300      	str	r3, [sp, #0]
- 800428a:	2328      	movs	r3, #40	@ 0x28
- 800428c:	2296      	movs	r2, #150	@ 0x96
+ 800428a:	231e      	movs	r3, #30
+ 800428c:	22a0      	movs	r2, #160	@ 0xa0
  800428e:	215a      	movs	r1, #90	@ 0x5a
  8004290:	2005      	movs	r0, #5
  8004292:	f7fe f9e7 	bl	8002664 <lcd_set_rectangle>
@@ -8633,12 +8633,12 @@ void setup_third_lvl() {
  80042a4:	211e      	movs	r1, #30
  80042a6:	2006      	movs	r0, #6
  80042a8:	f7fe f9dc 	bl	8002664 <lcd_set_rectangle>
-	lcd_set_rectangle(7, 0, 260, 220, 20, YELLOW);
+	lcd_set_rectangle(7, 0, 260, 200, 20, YELLOW);
  80042ac:	f64f 73e0 	movw	r3, #65504	@ 0xffe0
  80042b0:	9301      	str	r3, [sp, #4]
  80042b2:	2314      	movs	r3, #20
  80042b4:	9300      	str	r3, [sp, #0]
- 80042b6:	23dc      	movs	r3, #220	@ 0xdc
+ 80042b6:	23c8      	movs	r3, #200	@ 0xc8
  80042b8:	f44f 7282 	mov.w	r2, #260	@ 0x104
  80042bc:	2100      	movs	r1, #0
  80042be:	2007      	movs	r0, #7
@@ -8706,12 +8706,12 @@ void setup_third_lvl() {
  800433c:	2100      	movs	r1, #0
  800433e:	2001      	movs	r0, #1
  8004340:	f7fe f990 	bl	8002664 <lcd_set_rectangle>
-		lcd_set_rectangle(6, 30, 200, 30, 100, RED);
+		lcd_set_rectangle(6, 30, 200, 20, 100, RED);
  8004344:	f44f 4378 	mov.w	r3, #63488	@ 0xf800
  8004348:	9301      	str	r3, [sp, #4]
  800434a:	2364      	movs	r3, #100	@ 0x64
  800434c:	9300      	str	r3, [sp, #0]
- 800434e:	231e      	movs	r3, #30
+ 800434e:	2314      	movs	r3, #20
  8004350:	22c8      	movs	r2, #200	@ 0xc8
  8004352:	211e      	movs	r1, #30
  8004354:	2006      	movs	r0, #6
