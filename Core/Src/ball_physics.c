@@ -1,6 +1,6 @@
 #include "ball_physics.h"
 
-int16_t max_speed = 10;
+int16_t max_speed = 15;
 
 
 void ball_set_speed(int16_t *speed_x,int16_t *speed_y){
@@ -13,14 +13,14 @@ void ball_set_speed(int16_t *speed_x,int16_t *speed_y){
 	if(dx==0){
 		*speed_x*=0.99;
 	}else{
-		*speed_x -= 0.1*dx;
+		*speed_x -= 0.15*dx;
 	}
 
 	if(dy==0){
 			*speed_y*=0.99;
 		}
 	else{
-		*speed_y -=  0.1*dy;
+		*speed_y -=  0.15*dy;
 	}
 
 
@@ -104,6 +104,15 @@ bool check_difficulty_selection(Rectangle rec, int next_x, int next_y){
 				              (next_y > rec.y - player.r) &&
 				              (next_y < rec.y + rec.height + player.r)&& (rec.color == ORANGE)){
 			DifficultyLevel=1;
+		//	Circle player_temp=player;
+			//updateBall=0;
+			change_screen_flag=1;
+
+
+		//	lcd_set_circle(player_temp.x, player_temp.y, player_temp.r, player_temp.color);
+
+		//	set_up_menu(false);
+
 				return true;
 		 }
 
@@ -113,6 +122,16 @@ bool check_difficulty_selection(Rectangle rec, int next_x, int next_y){
 					              (next_y < rec.y + rec.height + player.r)&& (rec.color == PURPLE)){
 
 					DifficultyLevel=2;
+
+					//updateBall=0;
+					//Circle player_temp=player;
+					change_screen_flag=1;
+
+
+					//lcd_set_circle(player_temp.x, player_temp.y, player_temp.r, player_temp.color);
+
+				//	set_up_menu(false);
+
 					return true;
 			 }
 	if ((next_x < rec.x + rec.width + player.r) &&
@@ -121,6 +140,13 @@ bool check_difficulty_selection(Rectangle rec, int next_x, int next_y){
 						              (next_y < rec.y + rec.height + player.r)&& (rec.color == DARK_RED)){
 
 						DifficultyLevel=3;
+						//Circle player_temp=player;
+					//	updateBall=0;
+					change_screen_flag=1;
+					//	set_up_menu(false);
+
+
+					//	lcd_set_circle(player_temp.x, player_temp.y, player_temp.r, player_temp.color);
 
 						return true;
 	}

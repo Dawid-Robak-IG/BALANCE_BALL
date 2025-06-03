@@ -107,6 +107,9 @@ void click_led() {
 				} else if (screen_id == 3) {
 					screen_id = 4;
 					change_screen_flag = 1;
+				} else if (screen_id == 4) {
+					screen_id = 5;
+					change_screen_flag = 1;
 				} else if (screen_id == 5) {
 					screen_id = 1;
 					change_screen_flag = 1;
@@ -155,6 +158,9 @@ void set_up_calibration() {
 	const char str_gyroscope[12] = "GYROSCOPE";
 	const char str_calibration[14] = "CALIBRATION...";
 
+	const char str_warn1[12] = "DO NOT MOVE";
+	const char str_warn2[11] = "THE BOARD";
+
 	const char str4[8] = "WAIT FOR";
 	const char str5[9] = "GREEN LED";
 
@@ -184,6 +190,23 @@ void set_up_calibration() {
 	}
 	j += 3;
 	last_idx += 14;
+
+	for (int i = 0; i < 12; i++) {
+			x = znak_szer * (i + 1);
+			lcd_set_char(i + last_idx, x, j * znak_szer, str_warn1[i], RED);
+		}
+
+	j ++;
+		last_idx += 12;
+
+		for (int i = 0; i < 11; i++) {
+				x = znak_szer * (i + 1);
+				lcd_set_char(i + last_idx, x, j * znak_szer, str_warn2[i], RED);
+			}
+
+
+	j += 3;
+		last_idx += 11;
 	for (int i = 0; i < 8; i++) {
 		x = znak_szer * (i + 1);
 		lcd_set_char(i + last_idx, x, j * znak_szer, str4[i], GREEN);
@@ -218,6 +241,7 @@ void set_up_calibration() {
 	}
 
 }
+
 void set_up_menu() {
 	lcd_clear_text();
 
@@ -225,19 +249,18 @@ void set_up_menu() {
 	lcd_set_rectangle(1, 90, 195, 150, 32, PURPLE);
 	lcd_set_rectangle(2, 0, 260, 150, 32, DARK_RED);
 
+	lcd_set_rectangle(3, 15, 14, 190, 15, BLUE);
+	lcd_set_rectangle(4, 15, 62, 90, 15, BLUE);
+	lcd_set_rectangle(5, 15, 76, 155, 15, BLUE);
 
-		lcd_set_rectangle(3, 15, 14, 190, 15, BLUE);
-		lcd_set_rectangle(4, 15, 62, 90, 15, BLUE);
-		lcd_set_rectangle(5, 15, 76, 155, 15, BLUE);
+	lcd_set_rectangle(6, 15, 92, 80, 15, BLUE);
+	lcd_set_rectangle(7, 0, 0, 0, 0, 0);
+	lcd_set_rectangle(8, 0, 0, 0, 0, 0);
+	lcd_set_rectangle(9, 0, 0, 0, 0, 0);
 
-		lcd_set_rectangle(6, 15, 92, 80, 15, BLUE);
-		lcd_set_rectangle(7, 0, 0, 0, 0, 0);
-		lcd_set_rectangle(8, 0, 0, 0, 0, 0);
-		lcd_set_rectangle(9, 0, 0, 0, 0, 0);
-
-
-
-	lcd_set_circle(100, 120, 8, GREEN);
+	//if (updateBall) {
+		lcd_set_circle(220, 120, 8, GREEN);
+//	}
 
 	const char str1[12] = "BALANCE BALL";
 	const char str12[6] = "SELECT";
@@ -277,23 +300,34 @@ void set_up_menu() {
 	last_idx += 5;
 	for (int i = 0; i < 4; i++) {
 		x = znak_szer * (i + 1);
-		lcd_set_char(i + last_idx, x, j * znak_szer, str4[i], BLACK);
+		if (DifficultyLevel == 1)
+			lcd_set_char(i + last_idx, x, j * znak_szer, str4[i], WHITE);
+		else
+			lcd_set_char(i + last_idx, x, j * znak_szer, str4[i], BLACK);
 	}
 
 	j += 4;
 	last_idx += 4;
 	for (int i = 0; i < 6; i++) {
 		x = znak_szer * (i + 9);
-		lcd_set_char(i + last_idx, x, j * znak_szer, str5[i], BLACK);
+		if (DifficultyLevel == 2)
+			lcd_set_char(i + last_idx, x, j * znak_szer, str5[i], WHITE);
+		else
+			lcd_set_char(i + last_idx, x, j * znak_szer, str5[i], BLACK);
 	}
 
 	j += 4;
 	last_idx += 6;
 	for (int i = 0; i < 4; i++) {
 		x = znak_szer * (i + 1);
-		lcd_set_char(i + last_idx, x, j * znak_szer, str6[i], BLACK);
+		if (DifficultyLevel == 3)
+			lcd_set_char(i + last_idx, x, j * znak_szer, str6[i], WHITE);
+		else
+			lcd_set_char(i + last_idx, x, j * znak_szer, str6[i], BLACK);
 	}
 }
+
+
 
 void setup_first_lvl() {
 	second_pasted = 0;
@@ -342,7 +376,7 @@ void setup_second_lvl() {
 	lcd_set_rectangle(6, 80, 180, 70, 20, YELLOW);
 	lcd_set_rectangle(7, 130, 100, 20, 80, YELLOW);
 	lcd_set_rectangle(8, 50, 220, 130, 20, YELLOW);
-	lcd_set_rectangle(9, 80, 280, 160, 40, YELLOW);
+	lcd_set_rectangle(9, 80, 280, 140, 40, YELLOW);
 
 	if (DifficultyLevel >= 2) {
 		lcd_set_rectangle(2, 30, 100, 20, 190, RED);
@@ -368,7 +402,7 @@ void setup_third_lvl() {
 	lcd_set_rectangle(2, 120, 40, 20, 90, YELLOW);
 	lcd_set_rectangle(3, 200, 80, 30, 140, YELLOW);
 	lcd_set_rectangle(4, 80, 170, 160, 20, YELLOW);
-	lcd_set_rectangle(5,  90, 150, 40, 90, YELLOW);
+	lcd_set_rectangle(5, 90, 150, 40, 90, YELLOW);
 
 	lcd_set_rectangle(6, 30, 200, 20, 100, YELLOW);
 	lcd_set_rectangle(7, 0, 260, 220, 20, YELLOW);
@@ -380,11 +414,10 @@ void setup_third_lvl() {
 		lcd_set_rectangle(4, 80, 170, 160, 20, RED);
 	}
 
-		if (DifficultyLevel == 3) {
-			lcd_set_rectangle(1, 0, 100, 170, 20, YELLOW);
-			lcd_set_rectangle(6, 30, 200, 30, 100, RED);
-		}
-
+	if (DifficultyLevel == 3) {
+		lcd_set_rectangle(1, 0, 100, 170, 20, RED);
+		lcd_set_rectangle(6, 30, 200, 30, 100, RED);
+	}
 
 	lcd_set_circle(10, 10, 8, GREEN);
 
@@ -397,8 +430,8 @@ void setup_end() {
 	lcd_clear_screen();
 
 	lcd_set_rectangle(0, 14, 14, 120, 16, BLUE);
-	lcd_set_rectangle(1, 14, 30, 180, 15,BLUE);
-	lcd_set_rectangle(2, 14, 60, 60, 50,BLUE);
+	lcd_set_rectangle(1, 14, 30, 180, 15, BLUE);
+	lcd_set_rectangle(2, 14, 60, 60, 50, BLUE);
 	lcd_set_rectangle(3, 0, 0, 0, 0, 0);
 	lcd_set_rectangle(4, 0, 0, 0, 0, 0);
 	lcd_set_rectangle(5, 0, 0, 0, 0, 0);
@@ -407,6 +440,8 @@ void setup_end() {
 	lcd_set_rectangle(7, 0, 0, 0, 0, 0);
 	lcd_set_rectangle(8, 0, 0, 0, 0, 0);
 	lcd_set_rectangle(9, 0, 0, 0, 0, 0);
+
+	lcd_set_circle(200, 100, 8, GREEN);
 
 	const char str1[7] = "THE END";
 	int x;
@@ -489,7 +524,7 @@ void set_screen() {
 	} else if (screen_id == 5) {
 		setup_end();
 	}
-	if (screen_id != 0)
+	if (screen_id != 0 )
 		lcd_update(0);
 	else
 		lcd_update(1);
@@ -583,6 +618,8 @@ int main(void) {
 			printf("Changing scene\r\n");
 			set_screen();
 		}
+
+
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */

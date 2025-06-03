@@ -11,6 +11,7 @@ extern int16_t max_speed;
 
 extern int screen_id;
 extern int DifficultyLevel;
+extern bool updateBall;
 extern uint8_t change_screen_flag;
 
 //extern volatile Circle player;
