@@ -85,7 +85,6 @@ int screen_id = 0;
 uint8_t change_screen_flag = 0;
 uint8_t green_led_flag = 0;
 
-//void set_screen();
 
 void click_led() {
 	static uint8_t clicked;
@@ -129,32 +128,7 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi) {
 	}
 }
 
-//
-//void lcd_print_all_chars(void) {
-//	const char znaczki[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-//
-//	int i = 0;
-//
-//	for (int y = 0; y < LCD_HEIGHT && i < 36; y += znak_wys) {
-//		for (int x = znak_szer; x + znak_szer <= LCD_WIDTH && i < 36; x +=
-//				znak_szer) {
-//			lcd_set_char(i, x, y, znaczki[i], GREEN);
-//			i++;
-//		}
-//	}
-//}
-//
-//
-//
-//void set_new_figs(void) {
-//	lcd_clear_text();
-//	lcd_set_rectangle(0, 100, 0, 50, 100, RED);
-//	lcd_set_rectangle(1, 150, 190, 60, 15, YELLOW);
-//	lcd_set_rectangle(2, 0, 250, 200, 30, RED);
-//	lcd_set_circle(LCD_WIDTH / 2, LCD_HEIGHT / 2, 10, GREEN);
-//
-//	lcd_print_all_chars();
-//}
+
 
 
 /* USER CODE END 0 */
@@ -212,12 +186,12 @@ int main(void) {
 	HAL_Delay(500); //żeby LCD skończył swoje przesyłanie
 	gyro_init();
 
+	//resetFlash();
+
 	initializeFlashIfNeeded();
 	HAL_Delay(2000);
 	gyro_calculate_offset(&gyro_offset_s);
 	HAL_Delay(1000);
-
-//	HAL_TIM_Base_Start_IT(&htim7);
 
 	/* USER CODE END 2 */
 
@@ -240,7 +214,6 @@ int main(void) {
 		click_led();
 		if (change_screen_flag == 1) {
 			change_screen_flag = 0;
-			printf("Changing scene\r\n");
 			set_screen();
 		}
 

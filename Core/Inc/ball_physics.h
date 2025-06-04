@@ -14,7 +14,6 @@ extern int DifficultyLevel;
 extern bool updateBall;
 extern uint8_t change_screen_flag;
 
-//extern volatile Circle player;
 void ball_set_speed(int16_t *speed_x,int16_t *speed_y);
 void ball_move(int16_t *speed_x,int16_t *speed_y);
 

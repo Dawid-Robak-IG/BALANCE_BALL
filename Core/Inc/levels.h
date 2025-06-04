@@ -9,8 +9,7 @@
 extern int screen_id;
 extern volatile uint32_t second_pasted;
 
-extern const int znak_szer;
-extern const int znak_wys;
+
 
 void set_up_calibration();
 void set_up_menu() ;

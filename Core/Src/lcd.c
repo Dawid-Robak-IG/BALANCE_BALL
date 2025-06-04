@@ -25,11 +25,14 @@
 
 
 volatile static uint16_t screen_buffer[LCD_WIDTH * LCD_HEIGHT];
-//volatile static uint16_t circle_buffer[4 * CIRCLE_RADIUS * CIRCLE_RADIUS];
 static uint16_t current_chunk = 0;
 static uint16_t how_many_chunks = 4;
 static uint16_t chunk_size;
 static uint16_t y_per_chunk;
+
+
+const int znak_szer = 16;
+const int znak_wys = 16;
 
 volatile bool lcd_ready=true;
 
@@ -389,4 +392,31 @@ void lcd_clear_circle() {
         }
     }
     spi5_release();
+}
+
+
+void lcd_print_all_chars(void) {
+	const char znaczki[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+	int i = 0;
+
+	for (int y = 0; y < LCD_HEIGHT && i < 36; y += znak_wys) {
+		for (int x = znak_szer; x + znak_szer <= LCD_WIDTH && i < 36; x +=
+				znak_szer) {
+			lcd_set_char(i, x, y, znaczki[i], GREEN);
+			i++;
+		}
+	}
+}
+
+
+
+void set_new_figs(void) {
+	lcd_clear_text();
+	lcd_set_rectangle(0, 100, 0, 50, 100, RED);
+	lcd_set_rectangle(1, 150, 190, 60, 15, YELLOW);
+	lcd_set_rectangle(2, 0, 250, 200, 30, RED);
+	lcd_set_circle(LCD_WIDTH / 2, LCD_HEIGHT / 2, 10, GREEN);
+
+	lcd_print_all_chars();
 }

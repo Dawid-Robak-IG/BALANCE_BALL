@@ -26,5 +26,7 @@ HighScores readHighScores(void);
 void updateHighScores(uint32_t newTime);
 void initializeFlashIfNeeded(void);
 
+void resetFlash(void);
+
 
 #endif /* INC_FLASH_H_ */

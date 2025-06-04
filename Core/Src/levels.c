@@ -1,8 +1,6 @@
 #include "levels.h"
 
 
-const int znak_szer = 16;
-const int znak_wys = 16;
 
 
 void set_up_calibration() {
@@ -103,11 +101,11 @@ void set_up_menu() {
 	lcd_set_rectangle(1, 90, 215, 150, 32, PURPLE);
 	lcd_set_rectangle(2, 0, 292, 150, 32, DARK_RED);
 
-	lcd_set_rectangle(3, 15, 14, 190, 15, BLUE);
-	lcd_set_rectangle(4, 15, 62, 90, 15, BLUE);
-	lcd_set_rectangle(5, 15, 76, 155, 15, BLUE);
+	lcd_set_rectangle(3, 15, 14, 190, 15, BACKGROUND);
+	lcd_set_rectangle(4, 15, 62, 90, 15, BACKGROUND);
+	lcd_set_rectangle(5, 15, 76, 155, 15, BACKGROUND);
 
-	lcd_set_rectangle(6, 15, 92, 80, 15, BLUE);
+	lcd_set_rectangle(6, 15, 92, 80, 15, BACKGROUND);
 	lcd_set_rectangle(7, 0, 0, 0, 0, 0);
 	lcd_set_rectangle(8, 0, 0, 0, 0, 0);
 	lcd_set_rectangle(9, 0, 0, 0, 0, 0);
@@ -279,13 +277,12 @@ void setup_third_lvl() {
 
 void setup_end() {
 	HAL_TIM_Base_Stop_IT(&htim10);
-	//clear_rectangles();
 	lcd_clear_text();
 	lcd_clear_screen();
 
-	lcd_set_rectangle(0, 14, 14, 120, 16, BLUE);
-	lcd_set_rectangle(1, 14, 30, 180, 15, BLUE);
-	lcd_set_rectangle(2, 14, 60, 60, 50, BLUE);
+	lcd_set_rectangle(0, 14, 14, 120, 16, BACKGROUND);
+	lcd_set_rectangle(1, 14, 30, 180, 15, BACKGROUND);
+	lcd_set_rectangle(2, 14, 60, 100, 50, BACKGROUND);
 	lcd_set_rectangle(3, 0, 0, 0, 0, 0);
 	lcd_set_rectangle(4, 0, 0, 0, 0, 0);
 	lcd_set_rectangle(5, 0, 0, 0, 0, 0);

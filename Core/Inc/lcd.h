@@ -39,6 +39,9 @@ extern volatile bool lcd_ready;
 extern int16_t max_speed;
 
 
+extern const int znak_szer;
+extern const int znak_wys;
+
 //==========================================
 // LCD INTERFACE
 //==========================================
@@ -47,7 +50,6 @@ void lcd_put_pixel(int x, int y, uint16_t color); // to put indyvidual pixel on 
 void lcd_update(uint8_t only_text); // to update state of lcd screen
 void lcd_update_circle(int dx,int dy,int dradius);
 void lcd_set_circle(int x,int y,int radius,uint16_t color);
-//void lcd_delta_circle(int dx,int dy,int dradius);
 void lcd_set_rectangle(uint16_t idx,int x,int y,int width,int height,uint16_t color);
 
 void lcd_change_ball_color(uint16_t speed_x, uint16_t speed_y);
@@ -65,4 +67,7 @@ void lcd_clear_circle();
 
 bool lcd_is_busy(void);
 void go_for_next_chunk(void);
+
+void lcd_print_all_chars(void);
+void set_new_figs(void);
 

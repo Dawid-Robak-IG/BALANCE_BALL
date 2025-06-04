@@ -1,9 +1,3 @@
-/*
- * flash.c
- *
- *  Created on: May 30, 2025
- *      Author: drworms
- */
 #include "flash.h"
 
 HighScores readHighScores(void) {
