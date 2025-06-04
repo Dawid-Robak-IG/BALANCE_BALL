@@ -1,5 +1,0 @@
-../Core/Src/ball_physics.c:6:6:ball_set_speed	11
-../Core/Src/ball_physics.c:38:6:ball_move	4
-../Core/Src/ball_physics.c:62:6:check_collision	16
-../Core/Src/ball_physics.c:100:6:check_difficulty_selection	16
-../Core/Src/ball_physics.c:159:6:check_inside_screen	5
